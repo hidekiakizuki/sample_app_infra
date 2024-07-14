@@ -36,3 +36,5 @@ terraform.rc
 # others
 .DS_Store
 .envrc
+import.tf
+generated_resources.tf

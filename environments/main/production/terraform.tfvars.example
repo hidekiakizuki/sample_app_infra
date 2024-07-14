@@ -41,3 +41,8 @@ appautoscaling_target = {
 #   - aws_cloudwatch_metric_alarm
 # このフラグをtrueにすることで該当リソースを削除します。
 delete_before_ecs_task_update = false
+
+allowed_ips_in_maintenance = [
+  "xxx.xxx.xxx.xxx/32",
+  "xxx.xxx.xxx.xxx/32"
+]

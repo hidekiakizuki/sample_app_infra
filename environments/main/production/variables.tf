@@ -52,3 +52,7 @@ variable "delete_before_ecs_task_update" {
   type    = bool
   default = false
 }
+
+variable "allowed_ips_in_maintenance" {
+  type        = list(string)
+}
