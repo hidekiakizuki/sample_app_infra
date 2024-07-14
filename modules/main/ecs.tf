@@ -116,7 +116,7 @@ resource "aws_ecs_task_definition" "rails_web" {
   memory                   = var.ecs.task_definition.memory
 
   container_definitions    = templatefile(
-    "${path.module}/json/task-definitions/rails_web.json.tpl",
+    "${path.module}/files/json/task-definitions/rails_web.json.tpl",
     {
       app_name            = var.app_name
       region              = data.aws_region.current.name

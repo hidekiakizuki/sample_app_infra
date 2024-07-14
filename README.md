@@ -127,7 +127,6 @@ IAMにてIDプロバイダを追加します。
 - 対象者: `sts.amazonaws.com`
 
 # TODO
-- メンテナンスページ対応
 - CloudWatch AlarmでSNSからSlack通知
 - LBでアクセスログ、コネクションログ追加
 - アプリログ改善（JSON化、FireLensで出力先変更）

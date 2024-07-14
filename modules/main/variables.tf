@@ -59,3 +59,7 @@ variable "appautoscaling_target" {
 variable "delete_before_ecs_task_update" {
   type = bool
 }
+
+variable "allowed_ips_in_maintenance" {
+  type        = list(string)
+}

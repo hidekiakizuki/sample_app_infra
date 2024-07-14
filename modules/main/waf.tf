@@ -1,7 +1,7 @@
-resource "aws_wafv2_web_acl" "rails_web" {
+resource "aws_wafv2_web_acl" "active" {
   provider      = aws.virginia
 
-  name          = "rails-web"
+  name          = "active"
   scope         = "CLOUDFRONT"
 
   default_action {
@@ -121,7 +121,65 @@ resource "aws_wafv2_web_acl" "rails_web" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "cloudfront-rails-web"
+    metric_name                = "CloudFront-Active"
     sampled_requests_enabled   = true
   }
+}
+
+resource "aws_wafv2_web_acl" "in_maintenance" {
+  provider      = aws.virginia
+
+  name          = "in-maintenance"
+  scope         = "CLOUDFRONT"
+
+  default_action {
+    block {
+      custom_response {
+        custom_response_body_key = "in-maintenance"
+        response_code            = 503
+      }
+    }
+  }
+
+  custom_response_body {
+    content      = file("${path.module}/files/html/maintenance.html")
+    content_type = "TEXT_HTML"
+    key          = "in-maintenance"
+  }
+
+  rule {
+    name     = "AllowedIPs-In-Maintenance"
+    priority = 0
+
+    action {
+      allow {}
+    }
+
+    statement {
+      ip_set_reference_statement {
+        arn = aws_wafv2_ip_set.allowed_ips_in_maintenance.arn
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AllowedIPs-In-Maintenance"
+      sampled_requests_enabled   = false
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "CloudFront-In-Maintenance"
+    sampled_requests_enabled   = false
+  }
+}
+
+resource "aws_wafv2_ip_set" "allowed_ips_in_maintenance" {
+  provider           = aws.virginia
+
+  name               = "allowed-ips-in-maintenance"
+  scope              = "CLOUDFRONT"
+  ip_address_version = "IPV4"
+  addresses          = var.allowed_ips_in_maintenance
 }

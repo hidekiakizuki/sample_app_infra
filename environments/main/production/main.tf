@@ -12,6 +12,7 @@ module "production" {
   ecs                           = var.ecs
   appautoscaling_target         = var.appautoscaling_target
   delete_before_ecs_task_update = var.delete_before_ecs_task_update
+  allowed_ips_in_maintenance    = var.allowed_ips_in_maintenance
 
   providers = {
     aws = aws
