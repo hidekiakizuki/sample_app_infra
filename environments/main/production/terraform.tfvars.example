@@ -1,0 +1,43 @@
+app_name         = "sample_app"
+root_domain_name = "example.com"
+app_domain_name  = "app.example.com"
+app_repository   = "repo:example/sample_app:*"
+
+rds = {
+  engine_version        = "15.5"
+  instance_class        = "db.t3.micro"
+  storage_type          = "gp2"
+  allocated_storage     = 20
+  max_allocated_storage = 100
+  multi_az              = false
+  db_parameter_group = {
+    family = "postgres15"
+  }
+}
+
+ecs = {
+  service = {
+    platform_version = "1.4.0"
+    desired_count    = 0 # 0にしているので注意してください。
+  }
+  task_definition = {
+    cpu    = "256"
+    memory = "512"
+  }
+}
+
+# 0にしているので注意してください。
+appautoscaling_target = {
+  min_capacity = 0
+  max_capacity = 0
+}
+
+# タスク定義を更新する場合、事前に関連する以下のリソースを削除する必要があります。
+#   - aws_codedeploy_app
+#   - aws_codedeploy_deployment_group
+#   - aws_ecs_service
+#   - aws_appautoscaling_target
+#   - aws_appautoscaling_policy
+#   - aws_cloudwatch_metric_alarm
+# このフラグをtrueにすることで該当リソースを削除します。
+delete_before_ecs_task_update = false

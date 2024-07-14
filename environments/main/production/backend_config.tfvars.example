@@ -1,0 +1,5 @@
+region         = "ap-northeast-1"
+bucket         = "terraform-state-xxxxxxxxxxxx"
+key            = "terraform.tfstate"
+encrypt        = true
+dynamodb_table = "terraform-state-lock"
