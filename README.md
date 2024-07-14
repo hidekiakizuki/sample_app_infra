@@ -115,18 +115,23 @@ terraform apply後、コメントを戻します。
 
 ### 15. CloudWatch Alarm作成
 
-### 16. WAF作成
+### 16. SNS作成
 
-### 17. CloudFront作成
+### 17. Chatbot作成
+AWSマネジメントコンソールから手動で作成します。
+予めSlackで通知先チャンネルを作成しておき、SNS topicを設定してください。
+
+### 18. WAF作成
+
+### 19. CloudFront作成
 ドメインを管理しているAWSアカウントのRoute53でAレコード作成し、エイリアスにこのディストリビューションを指定します。
 
-### 18. GitHubのIDプロバイダを追加
+### 20. GitHubのIDプロバイダを追加
 IAMにてIDプロバイダを追加します。
 - プロバイダのタイプ: `OpenID Connect`
 - プロバイダのURL: `https://token.actions.githubusercontent.com`
 - 対象者: `sts.amazonaws.com`
 
 # TODO
-- CloudWatch AlarmでSNSからSlack通知
 - LBでアクセスログ、コネクションログ追加
 - アプリログ改善（JSON化、FireLensで出力先変更）
