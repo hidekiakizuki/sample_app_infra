@@ -446,3 +446,35 @@ data "aws_iam_policy_document" "github_actions_oidc_assume_role" {
 
   version = "2012-10-17"
 }
+
+data "aws_iam_policy_document" "sns_topic" {
+  statement {
+    sid    = "__default_statement_ID"
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "SNS:Publish",
+      "SNS:RemovePermission",
+      "SNS:SetTopicAttributes",
+      "SNS:DeleteTopic",
+      "SNS:ListSubscriptionsByTopic",
+      "SNS:GetTopicAttributes",
+      "SNS:AddPermission",
+      "SNS:Subscribe"
+    ]
+
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceOwner"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+  version = "2012-10-17"
+}

@@ -18,7 +18,8 @@ resource "aws_cloudwatch_metric_alarm" "rails_web_alarm_high" {
 
   alarm_description = "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy ${aws_appautoscaling_policy.rails_web[0].arn}."
   actions_enabled   = true
-  alarm_actions     = [aws_appautoscaling_policy.rails_web[0].arn]
+  alarm_actions     = [aws_appautoscaling_policy.rails_web[0].arn, aws_sns_topic.alert.arn]
+  ok_actions        = [aws_sns_topic.alert.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "rails_web_alarm_low" {
