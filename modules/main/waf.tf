@@ -1,8 +1,8 @@
-resource "aws_wafv2_web_acl" "active" {
-  provider      = aws.virginia
+resource "aws_wafv2_web_acl" "cloudfront_active" {
+  provider = aws.virginia
 
-  name          = "active"
-  scope         = "CLOUDFRONT"
+  name     = "cloudfront-active"
+  scope    = "CLOUDFRONT"
 
   default_action {
     allow {}
@@ -126,10 +126,10 @@ resource "aws_wafv2_web_acl" "active" {
   }
 }
 
-resource "aws_wafv2_web_acl" "in_maintenance" {
+resource "aws_wafv2_web_acl" "cloudfront_in_maintenance" {
   provider      = aws.virginia
 
-  name          = "in-maintenance"
+  name          = "cloudfront-in-maintenance"
   scope         = "CLOUDFRONT"
 
   default_action {
@@ -182,4 +182,90 @@ resource "aws_wafv2_ip_set" "allowed_ips_in_maintenance" {
   scope              = "CLOUDFRONT"
   ip_address_version = "IPV4"
   addresses          = var.allowed_ips_in_maintenance
+}
+
+resource "aws_wafv2_web_acl" "alb_active" {
+  name  = "alb-active"
+  scope = "REGIONAL"
+
+  default_action {
+    allow {}
+  }
+
+  rule {
+    name     = "AWS-AWSManagedRulesAmazonIpReputationList"
+    priority = 0
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesAmazonIpReputationList"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesAmazonIpReputationList"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWS-AWSManagedRulesCommonRuleSet"
+    priority = 1
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesCommonRuleSet"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
+    priority = 2
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ALB-Active"
+    sampled_requests_enabled   = true
+  }
+}
+
+resource "aws_wafv2_web_acl_association" "alb_active" {
+  resource_arn = aws_lb.alb.arn
+  web_acl_arn  = aws_wafv2_web_acl.alb_active.arn
 }

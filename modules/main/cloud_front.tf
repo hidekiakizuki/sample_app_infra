@@ -16,7 +16,7 @@ resource "aws_cloudfront_distribution" "rails_web" {
   retain_on_delete = true
 
   aliases          = [var.app_domain_name]
-  web_acl_id       = aws_wafv2_web_acl.active.arn
+  web_acl_id       = aws_wafv2_web_acl.cloudfront_active.arn
 
   default_cache_behavior {
     cache_policy_id          = aws_cloudfront_cache_policy.rails_web.id
