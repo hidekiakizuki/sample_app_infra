@@ -54,6 +54,31 @@ resource "aws_db_parameter_group" "rds_pg" {
   family = var.rds.db_parameter_group.family
 
   parameter {
+    name         = "lc_monetary"
+    value        = var.rds.db_parameter_group.lc_monetary
+  }
+
+  parameter {
+    name         = "lc_numeric"
+    value        = var.rds.db_parameter_group.lc_numeric
+  }
+
+  parameter {
+    name         = "lc_time"
+    value        = var.rds.db_parameter_group.lc_time
+  }
+
+  parameter {
+    name         = "timezone"
+    value        = var.rds.db_parameter_group.timezone
+  }
+
+  parameter {
+    name         = "datestyle"
+    value        = var.rds.db_parameter_group.datestyle
+  }
+
+  parameter {
     name         = "autovacuum"
     value        = 1
     apply_method = "pending-reboot"

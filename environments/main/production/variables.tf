@@ -23,7 +23,12 @@ variable "rds" {
     max_allocated_storage = number
     multi_az              = bool
     db_parameter_group = object({
-      family = string
+      family      = string
+      lc_monetary = string
+      lc_numeric  = string
+      lc_time     = string
+      timezone    = string
+      datestyle   = string
     })
   })
 }
