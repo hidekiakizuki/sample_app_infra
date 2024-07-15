@@ -28,7 +28,6 @@ variable "rds" {
       lc_numeric  = string
       lc_time     = string
       timezone    = string
-      datestyle   = string
     })
   })
 }

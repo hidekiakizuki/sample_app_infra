@@ -74,11 +74,6 @@ resource "aws_db_parameter_group" "rds_pg" {
   }
 
   parameter {
-    name         = "datestyle"
-    value        = var.rds.db_parameter_group.datestyle
-  }
-
-  parameter {
     name         = "autovacuum"
     value        = 1
     apply_method = "pending-reboot"

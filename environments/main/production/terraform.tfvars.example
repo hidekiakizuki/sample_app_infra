@@ -12,14 +12,13 @@ rds = {
   multi_az              = false
 
   # These settings are specific to Japanese locale and timezone.
-  # Please adjust lc_time, timezone, and datestyle according to your region
+  # Please adjust lc_time and timezone according to your region
   db_parameter_group = {
     family      = "postgres15"
     lc_monetary = "C"
     lc_numeric  = "C"
-    lc_time     = "ja_JP.UTF-8" # "C"
+    lc_time     = "C"
     timezone    = "Asia/Tokyo"  # "UTC"
-    datestyle   = "ISO, YMD"    # "ISO, MDY"
   }
 }
 
