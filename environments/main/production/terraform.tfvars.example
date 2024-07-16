@@ -11,8 +11,11 @@ rds = {
   max_allocated_storage = 100
   multi_az              = false
 
-  # These settings are specific to Japanese locale and timezone.
-  # Please adjust lc_time and timezone according to your region
+  # RDSではLC_COLLATEとLC_CTYPEを設定できないので、DB作成時にtemplate0を利用し、ENCODING、LC_COLLATE、LC_CTYPEを指定してください。
+  # 一度DBを作成するとあとで変更するのは大変なので、注意してください。
+  # Set the values below according to your region.
+  # Note: RDS does not allow setting LC_COLLATE and LC_CTYPE in the parameter group.
+  # Therefore, use template0 and specify ENCODING, LC_COLLATE, and LC_CTYPE during database creation.
   db_parameter_group = {
     family      = "postgres15"
     lc_monetary = "C"
