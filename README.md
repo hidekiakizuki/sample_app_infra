@@ -1,7 +1,7 @@
 # 概要
 RailsアプリケーションをECS上でBlue/Greenデプロイできるように構成されています。  
 一部、terraform対象外のリソースも含まれます。  
-(SSMパラメータストア、Route53やtfstateファイルのバックアップなどです。)
+(SSMパラメータストア、Route53やChatbot、tfstateファイルのバックアップ先などです。)
 
 # terraform実行
 terraformコマンドの実行は各環境ごとのディレクトリで実行してください。
@@ -116,9 +116,22 @@ terraform apply後、コメントを戻します。
 ### 15. CloudWatch Alarm作成
 
 ### 16. SNS作成
+メールが届いたら「Confirm subscription」のリンクをクリックせずに、そのリンク先のURLに含まれているTokenを抜き出し、
+AWS CLI経由で認証します。  
+これにより unsubscribe リンクを誤ってクリックしてしまうことを防止できます。
+
+```:AWS CLIコマンド
+aws sns confirm-subscription \
+--topic-arn arn:aws:sns:ap-northeast-1:123456789012:info \
+--token xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+--authenticate-on-unsubscribe true \
+--region ap-northeast-1
+```
+
+もし誤ってメールの「Confirm subscription」をクリックしてしまったら、該当サブスクリプションを削除して作り直し、上記を実行してください。（一度メールからクリックするとやり直しはできません。）
 
 ### 17. Chatbot作成
-AWSマネジメントコンソールから手動で作成します。
+AWSマネジメントコンソールから手動でinfo, warn, errorを作成します。
 予めSlackで通知先チャンネルを作成しておき、SNS topicを設定してください。
 
 ### 18. WAF作成

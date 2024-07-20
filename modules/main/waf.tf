@@ -1,8 +1,8 @@
 resource "aws_wafv2_web_acl" "cloudfront_active" {
   provider = aws.virginia
 
-  name     = "cloudfront-active"
-  scope    = "CLOUDFRONT"
+  name  = "cloudfront-active"
+  scope = "CLOUDFRONT"
 
   default_action {
     allow {}
@@ -127,10 +127,10 @@ resource "aws_wafv2_web_acl" "cloudfront_active" {
 }
 
 resource "aws_wafv2_web_acl" "cloudfront_in_maintenance" {
-  provider      = aws.virginia
+  provider = aws.virginia
 
-  name          = "cloudfront-in-maintenance"
-  scope         = "CLOUDFRONT"
+  name  = "cloudfront-in-maintenance"
+  scope = "CLOUDFRONT"
 
   default_action {
     block {
@@ -176,7 +176,7 @@ resource "aws_wafv2_web_acl" "cloudfront_in_maintenance" {
 }
 
 resource "aws_wafv2_ip_set" "allowed_ips_in_maintenance" {
-  provider           = aws.virginia
+  provider = aws.virginia
 
   name               = "allowed-ips-in-maintenance"
   scope              = "CLOUDFRONT"

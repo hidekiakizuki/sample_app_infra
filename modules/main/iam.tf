@@ -449,7 +449,7 @@ data "aws_iam_policy_document" "github_actions_oidc_assume_role" {
 
 data "aws_iam_policy_document" "sns_topic" {
   statement {
-    sid    = "__default_statement_ID"
+    sid    = "sns"
     effect = "Allow"
 
     principals {
@@ -458,14 +458,14 @@ data "aws_iam_policy_document" "sns_topic" {
     }
 
     actions = [
+      "SNS:AddPermission",
+      "SNS:DeleteTopic",
+      "SNS:GetTopicAttributes",
+      "SNS:ListSubscriptionsByTopic",
       "SNS:Publish",
       "SNS:RemovePermission",
-      "SNS:SetTopicAttributes",
-      "SNS:DeleteTopic",
-      "SNS:ListSubscriptionsByTopic",
-      "SNS:GetTopicAttributes",
-      "SNS:AddPermission",
-      "SNS:Subscribe"
+      "SNS:Subscribe",
+      "SNS:SetTopicAttributes"
     ]
 
     resources = ["*"]
@@ -476,5 +476,20 @@ data "aws_iam_policy_document" "sns_topic" {
       values   = [data.aws_caller_identity.current.account_id]
     }
   }
+
+  statement {
+    sid    = "event_bridge"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    actions = ["sns:Publish"]
+
+    resources = ["*"]
+  }
+
   version = "2012-10-17"
 }
