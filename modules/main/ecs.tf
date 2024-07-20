@@ -3,7 +3,7 @@ resource "aws_ecs_cluster" "rails_web" {
 
   configuration {
     execute_command_configuration {
-      logging    = "DEFAULT"
+      logging = "DEFAULT"
     }
   }
 
@@ -18,7 +18,7 @@ resource "aws_ecs_cluster" "rails_web" {
 }
 
 resource "aws_service_discovery_http_namespace" "rails_web" {
-  name        = "rails-web"
+  name = "rails-web"
 
   tags = {
     AmazonECSManaged = "true"
@@ -28,21 +28,21 @@ resource "aws_service_discovery_http_namespace" "rails_web" {
 resource "aws_ecs_service" "rails_web" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  name                               = "rails-web"
+  name = "rails-web"
 
-  cluster                            = aws_ecs_cluster.rails_web.id
-  task_definition                    = aws_ecs_task_definition.rails_web.arn
-  desired_count                      = var.ecs.service.desired_count
+  cluster         = aws_ecs_cluster.rails_web.id
+  task_definition = aws_ecs_task_definition.rails_web.arn
+  desired_count   = var.service_suspend_mode ? 0 : var.ecs.service.desired_count
 
-  launch_type                        = "FARGATE"
-  platform_version                   = var.ecs.service.platform_version
-  scheduling_strategy                = "REPLICA"
+  launch_type         = "FARGATE"
+  platform_version    = var.ecs.service.platform_version
+  scheduling_strategy = "REPLICA"
 
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
   health_check_grace_period_seconds  = 300
 
-  enable_execute_command             = true
+  enable_execute_command = true
 
   deployment_controller {
     type = "CODE_DEPLOY"
@@ -70,8 +70,8 @@ resource "aws_ecs_service" "rails_web" {
 resource "aws_appautoscaling_target" "rails_web" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  resource_id        = "service/${aws_ecs_cluster.rails_web.name}/${aws_ecs_service.rails_web[0].name}"
-  role_arn           = data.aws_iam_role.appautoscaling_ecs.arn
+  resource_id = "service/${aws_ecs_cluster.rails_web.name}/${aws_ecs_service.rails_web[0].name}"
+  role_arn    = data.aws_iam_role.appautoscaling_ecs.arn
 
   service_namespace  = "ecs"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -86,8 +86,8 @@ data "aws_iam_role" "appautoscaling_ecs" {
 resource "aws_appautoscaling_policy" "rails_web" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  name               = "rails-web"
-  resource_id        = aws_appautoscaling_target.rails_web[0].resource_id
+  name        = "rails-web"
+  resource_id = aws_appautoscaling_target.rails_web[0].resource_id
 
   policy_type        = "TargetTrackingScaling"
   service_namespace  = aws_appautoscaling_target.rails_web[0].service_namespace
@@ -105,23 +105,23 @@ resource "aws_appautoscaling_policy" "rails_web" {
 }
 
 resource "aws_ecs_task_definition" "rails_web" {
-  family                   = "rails-web"
+  family = "rails-web"
 
-  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
-  task_role_arn            = aws_iam_role.ecs_task.arn
+  execution_role_arn = aws_iam_role.ecs_task_execution.arn
+  task_role_arn      = aws_iam_role.ecs_task.arn
 
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.ecs.task_definition.cpu
   memory                   = var.ecs.task_definition.memory
 
-  container_definitions    = templatefile(
-    "${path.module}/files/json/task-definitions/rails_web.json.tpl",
+  container_definitions = templatefile(
+    "${path.module}/files/json/task_definitions/rails_web.json.tpl",
     {
-      app_name            = var.app_name
-      region              = data.aws_region.current.name
-      nginx_image       = "${aws_ecr_repository.nginx.repository_url}:dummy"
-      rails_web_image   = "${aws_ecr_repository.rails_web.repository_url}:dummy"
+      app_name        = var.app_name
+      region          = data.aws_region.current.name
+      nginx_image     = "${aws_ecr_repository.nginx.repository_url}:dummy"
+      rails_web_image = "${aws_ecr_repository.rails_web.repository_url}:dummy"
     }
   )
   track_latest = true

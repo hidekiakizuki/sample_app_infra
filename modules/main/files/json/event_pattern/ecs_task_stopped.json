@@ -1,0 +1,8 @@
+{
+  "detail": {
+    "lastStatus": ["STOPPED"],
+    "stoppedReason": ["Essential container in task exited"]
+  },
+  "detail-type": ["ECS Task State Change"],
+  "source": ["aws.ecs"]
+}

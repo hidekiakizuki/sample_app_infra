@@ -1,7 +1,8 @@
-app_name         = "sample_app"
-root_domain_name = "example.com"
-app_domain_name  = "app.example.com"
-app_repository   = "repo:example/sample_app:*"
+app_name               = "sample_app"
+root_domain_name       = "example.com"
+app_domain_name        = "app.example.com"
+app_repository         = "repo:example/sample_app:*"
+sns_subscription_email = "email@example.com"
 
 rds = {
   engine_version        = "15.5"
@@ -28,7 +29,7 @@ rds = {
 ecs = {
   service = {
     platform_version = "1.4.0"
-    desired_count    = 0 # 0にしているので注意してください。
+    desired_count    = 1
   }
   task_definition = {
     cpu    = "256"
@@ -36,11 +37,15 @@ ecs = {
   }
 }
 
-# 0にしているので注意してください。
 appautoscaling_target = {
-  min_capacity = 0
-  max_capacity = 0
+  min_capacity = 1
+  max_capacity = 1
 }
+
+allowed_ips_in_maintenance = [
+  "xxx.xxx.xxx.xxx/32",
+  "xxx.xxx.xxx.xxx/32"
+]
 
 # タスク定義を更新する場合、事前に関連する以下のリソースを削除する必要があります。
 #   - aws_codedeploy_app
@@ -52,7 +57,6 @@ appautoscaling_target = {
 # このフラグをtrueにすることで該当リソースを削除します。
 delete_before_ecs_task_update = false
 
-allowed_ips_in_maintenance = [
-  "xxx.xxx.xxx.xxx/32",
-  "xxx.xxx.xxx.xxx/32"
-]
+# さまざまなリソースを停止、無効化、または0などに更新してコストダウンしたい場合にtrueにします。
+# リソースまでは削除しません。またサービスは動作しなくなります。
+service_suspend_mode = false

@@ -18,6 +18,7 @@ resource "aws_lb_listener" "rails_web_https" {
     type             = "forward"
     target_group_arn = local.current_https_target_group_arn
   }
+
   tags = {
     Name = "https-to-ecs"
   }
@@ -29,7 +30,7 @@ resource "aws_lb_listener" "rails_web_http" {
   protocol          = "HTTP"
 
   default_action {
-    type             = "redirect"
+    type = "redirect"
     redirect {
       host        = "#{host}"
       path        = "/#{path}"
@@ -39,6 +40,7 @@ resource "aws_lb_listener" "rails_web_http" {
       status_code = "HTTP_301"
     }
   }
+
   tags = {
     Name = "redirect-http-to-https"
   }
@@ -53,6 +55,7 @@ resource "aws_lb_listener" "rails_web_test" {
     type             = "forward"
     target_group_arn = local.current_https_target_group_arn
   }
+
   tags = {
     Name = "test-http-8080-to-ecs"
   }

@@ -14,6 +14,10 @@ variable "app_repository" {
   type = string
 }
 
+variable "sns_subscription_email" {
+  type = string
+}
+
 variable "rds" {
   type = object({
     engine_version        = string
@@ -52,11 +56,16 @@ variable "appautoscaling_target" {
   })
 }
 
+variable "allowed_ips_in_maintenance" {
+  type = list(string)
+}
+
 variable "delete_before_ecs_task_update" {
   type    = bool
   default = false
 }
 
-variable "allowed_ips_in_maintenance" {
-  type        = list(string)
+variable "service_suspend_mode" {
+  type    = bool
+  default = false
 }
