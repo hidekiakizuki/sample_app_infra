@@ -49,7 +49,7 @@ resource "aws_ecs_service" "rails_web" {
   }
 
   load_balancer {
-    target_group_arn = local.current_https_target_group_arn
+    target_group_arn = aws_lb_target_group.rails_web_b.arn
     container_name   = "nginx"
     container_port   = 80
   }
@@ -62,7 +62,8 @@ resource "aws_ecs_service" "rails_web" {
 
   lifecycle {
     ignore_changes = [
-      task_definition
+      task_definition,
+      load_balancer
     ]
   }
 }
