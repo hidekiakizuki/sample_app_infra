@@ -6,6 +6,6 @@ resource "aws_cloudwatch_event_rule" "ecs_task_stopped" {
 resource "aws_cloudwatch_event_target" "ecs_task_stopped" {
   target_id  = "ecs_task_stopped"
   rule       = "ecs-task-stopped"
-  arn        = aws_sns_topic.warn.arn
+  arn        = aws_sns_topic.error.arn
   depends_on = [aws_cloudwatch_event_rule.ecs_task_stopped]
 }
