@@ -8,7 +8,6 @@ resource "aws_lb" "alb" {
 
   access_logs {
     bucket  = aws_s3_bucket.elb_logs.bucket
-    prefix  = "alb"
     enabled = true
   }
 }
