@@ -32,7 +32,7 @@ resource "aws_ecs_service" "rails_web" {
 
   cluster         = aws_ecs_cluster.rails_web.id
   task_definition = aws_ecs_task_definition.rails_web.arn
-  desired_count   = 1 #var.service_suspend_mode ? 0 : var.ecs.service.desired_count
+  desired_count   = var.service_suspend_mode ? 0 : var.ecs.service.desired_count
 
   launch_type         = "FARGATE"
   platform_version    = var.ecs.service.platform_version
