@@ -1,7 +1,7 @@
 # 概要
 RailsアプリケーションをECS上でBlue/Greenデプロイできるように構成されています。  
 一部、terraform対象外のリソースも含まれます。  
-(SSMパラメータストア、Route53やChatbot、tfstateファイルのバックアップ先などです。)
+(SSMパラメータストア、Route53やChatbotなどです。)
 
 # terraform実行
 terraformコマンドの実行は各環境ごとのディレクトリで実行してください。
@@ -73,13 +73,27 @@ cd environments/main/xxx
 terraform init -backend-config=backend_config.tfvars
 ```
 
-### 4. VPC作成
+### 4. インポート
+手動で作成したS3バケットとDynamoDBテーブルをインポートします。
+```
+terraform import module.production.aws_s3_bucket.terraform_state terraform-state-xxxxxxxxxxxx
 
-### 5. IAM作成
+terraform import module.production.aws_s3_bucket_versioning.terraform_state terraform-state-xxxxxxxxxxxx
 
-### 6. KMS作成
+terraform import module.production.aws_dynamodb_table.terraform_state_lock terraform-state-lock
+```
 
-### 7. SSMパラメータストアでパラメータ登録
+### 5. S3作成
+
+### 6. DynamoDB作成
+
+### 7. VPC作成
+
+### 8. IAM作成
+
+### 9. KMS作成
+
+### 10. SSMパラメータストアでパラメータ登録
 以下をAWSマネジメントコンソールから手動で登録します。
 - `/app/rails/secret_key_base`
 - `/rds/postgres/host`（※ 値はdummyで登録）
@@ -87,35 +101,29 @@ terraform init -backend-config=backend_config.tfvars
 - `/rds/postgres/password`
 - `/rds/postgres/database`
 
-### 8. ACMでSSL証明書を作成
+### 11. ACMでSSL証明書を作成
 AWSマネジメントコンソールから手動で作成します。  
 アプリケーションを配置するメインのregionとus-east-1リージョンでそれぞれ作成してください。  
 ALBとCloudFrontそれぞれで利用します。
 
 ドメインは別のAWSアカウントで管理する想定なので注意してください。
 
-### 9. RDS作成
+### 12. RDS作成
 インスタンス作成後、SSMパラメータストアの`/rds/postgres/host`に値をセットします。
 
-### 10. ECR作成
+### 13. ECR作成
 
-### 11. ALB作成
-以下のリソースを一時的にコメントアウトしてterraform applyします。
-- `data.aws_lb_listener.current_https`
-- `data.external.current_https_target_group_arn`
-- `local.current_https_target_group_arn`
+### 14. ALB作成
 
-terraform apply後、コメントを戻します。  
+### 15. CloudWatch Logs作成
 
-### 12. CloudWatch Logs作成
+### 16. ECS作成
 
-### 13. ECS作成
+### 17. CodeDeploy作成
 
-### 14. CodeDeploy作成
+### 18. CloudWatch Alarm作成
 
-### 15. CloudWatch Alarm作成
-
-### 16. SNS作成
+### 19. SNS作成
 メールが届いたら「Confirm subscription」のリンクをクリックせずに、そのリンク先のURLに含まれているTokenを抜き出し、
 AWS CLI経由で認証します。  
 これにより unsubscribe リンクを誤ってクリックしてしまうことを防止できます。
@@ -130,21 +138,20 @@ aws sns confirm-subscription \
 
 もし誤ってメールの「Confirm subscription」をクリックしてしまったら、該当サブスクリプションを削除して作り直し、上記を実行してください。（一度メールからクリックするとやり直しはできません。）
 
-### 17. Chatbot作成
+### 20. Chatbot作成
 AWSマネジメントコンソールから手動でinfo, warn, errorを作成します。
 予めSlackで通知先チャンネルを作成しておき、SNS topicを設定してください。
 
-### 18. WAF作成
+### 21. WAF作成
 
-### 19. CloudFront作成
+### 22. CloudFront作成
 ドメインを管理しているAWSアカウントのRoute53でAレコード作成し、エイリアスにこのディストリビューションを指定します。
 
-### 20. GitHubのIDプロバイダを追加
+### 23. GitHubのIDプロバイダを追加
 IAMにてIDプロバイダを追加します。
 - プロバイダのタイプ: `OpenID Connect`
 - プロバイダのURL: `https://token.actions.githubusercontent.com`
 - 対象者: `sts.amazonaws.com`
 
 # TODO
-- LBでアクセスログ、コネクションログ追加
 - アプリログ改善（JSON化、FireLensで出力先変更）

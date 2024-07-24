@@ -5,6 +5,12 @@ resource "aws_lb" "alb" {
   subnets                    = tolist(aws_subnet.publics[*].id)
   ip_address_type            = "dualstack"
   enable_deletion_protection = true
+
+  access_logs {
+    bucket  = aws_s3_bucket.elb_logs.bucket
+    prefix  = "alb"
+    enabled = true
+  }
 }
 
 resource "aws_lb_listener" "rails_web_https" {
@@ -16,7 +22,13 @@ resource "aws_lb_listener" "rails_web_https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = local.current_https_target_group_arn
+    target_group_arn = aws_lb_target_group.rails_web_b.arn
+  }
+
+  lifecycle {
+    ignore_changes = [
+      default_action
+    ]
   }
 
   tags = {
@@ -53,7 +65,13 @@ resource "aws_lb_listener" "rails_web_test" {
 
   default_action {
     type             = "forward"
-    target_group_arn = local.current_https_target_group_arn
+    target_group_arn = aws_lb_target_group.rails_web_b.arn
+  }
+
+  lifecycle {
+    ignore_changes = [
+      default_action
+    ]
   }
 
   tags = {
@@ -91,21 +109,4 @@ resource "aws_lb_target_group" "rails_web_g" {
 
 data "aws_acm_certificate" "app_region" {
   domain = var.root_domain_name
-}
-
-data "aws_lb_listener" "current_https" {
-  load_balancer_arn = aws_lb.alb.arn
-  port              = 443
-}
-
-data "external" "current_https_target_group_arn" {
-  program = [
-    "aws", "elbv2", "describe-listeners",
-    "--listener-arns", data.aws_lb_listener.current_https.arn,
-    "--query", "{\"arn\": to_string(Listeners[0].DefaultActions[0].TargetGroupArn)}"
-  ]
-}
-
-locals {
-  current_https_target_group_arn = contains(["null", null], data.external.current_https_target_group_arn.result.arn) ? aws_lb_target_group.rails_web_b.arn : data.external.current_https_target_group_arn.result.arn
 }

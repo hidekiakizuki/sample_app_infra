@@ -29,10 +29,12 @@ data "aws_iam_policy_document" "ssm_session_manager_access" {
 data "aws_iam_policy_document" "ecs_tasks_assume_role" {
   statement {
     effect = "Allow"
+
     principals {
       type        = "Service"
       identifiers = ["ecs-tasks.amazonaws.com"]
     }
+
     actions = ["sts:AssumeRole"]
   }
 
@@ -135,6 +137,7 @@ data "aws_iam_policy_document" "ecs_management" {
       "autoscaling:RecordLifecycleActionHeartbeat"
     ]
     resources = ["*"]
+
     condition {
       test     = "Null"
       variable = "autoscaling:ResourceTag/AmazonECSManaged"
@@ -172,6 +175,7 @@ data "aws_iam_policy_document" "ecs_management" {
       "events:PutTargets",
     ]
     resources = ["*"]
+
     condition {
       test     = "StringEquals"
       variable = "events:ManagedBy"
@@ -244,6 +248,7 @@ data "aws_iam_policy_document" "ecs_management" {
       "servicediscovery:CreateService",
     ]
     resources = ["*"]
+
     condition {
       test     = "ForAllValues:StringEquals"
       variable = "aws:TagKeys"
@@ -256,6 +261,7 @@ data "aws_iam_policy_document" "ecs_management" {
     effect    = "Allow"
     actions   = ["servicediscovery:TagResource"]
     resources = ["*"]
+
     condition {
       test     = "StringLike"
       variable = "aws:RequestTag/AmazonECSManaged"
@@ -268,6 +274,7 @@ data "aws_iam_policy_document" "ecs_management" {
     effect    = "Allow"
     actions   = ["servicediscovery:DeleteService"]
     resources = ["*"]
+
     condition {
       test     = "Null"
       variable = "aws:ResourceTag/AmazonECSManaged"
@@ -291,10 +298,12 @@ data "aws_iam_policy_document" "ecs_management" {
 data "aws_iam_policy_document" "ecs_assume_role" {
   statement {
     effect = "Allow"
+
     principals {
       type        = "Service"
       identifiers = ["ecs.amazonaws.com"]
     }
+
     actions = ["sts:AssumeRole"]
   }
 
@@ -311,6 +320,7 @@ resource "aws_iam_role" "ecs_code_deploy" {
 data "aws_iam_policy_document" "ecs_code_deploy_assume_role" {
   statement {
     effect = "Allow"
+
     principals {
       type        = "Service"
       identifiers = ["codedeploy.amazonaws.com"]
@@ -331,6 +341,7 @@ resource "aws_iam_role" "rds_monitoring" {
 data "aws_iam_policy_document" "monitoring_rds_assume_role" {
   statement {
     effect = "Allow"
+
     principals {
       type        = "Service"
       identifiers = ["monitoring.rds.amazonaws.com"]
