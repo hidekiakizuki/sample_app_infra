@@ -1,3 +1,5 @@
+/*
+コスト削減のため一旦コメントアウトします。
 resource "aws_wafv2_web_acl" "cloudfront_active" {
   provider = aws.virginia
 
@@ -269,3 +271,4 @@ resource "aws_wafv2_web_acl_association" "alb_active" {
   resource_arn = aws_lb.alb.arn
   web_acl_arn  = aws_wafv2_web_acl.alb_active.arn
 }
+*/

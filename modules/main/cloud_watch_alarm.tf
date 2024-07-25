@@ -46,6 +46,8 @@ resource "aws_cloudwatch_metric_alarm" "rails_web_alarm_low" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_task_count_zero" {
+  count = var.delete_before_ecs_task_update ? 0 : 1
+
   alarm_name          = "ECS/ContainerInsights RunningTaskCount ServiceName=${aws_ecs_service.rails_web[0].name} ClusterName=${aws_ecs_cluster.rails_web.name}"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 5
