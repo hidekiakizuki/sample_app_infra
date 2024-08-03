@@ -106,3 +106,17 @@ data "aws_iam_policy_document" "cloud_watch_logs_backups" {
 
   version = "2012-10-17"
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "cloud_watch_logs_backups" {
+  bucket = aws_s3_bucket.cloud_watch_logs_backups.bucket
+
+  rule {
+    id = "delete_logs"
+
+    expiration {
+      days = 365
+    }
+
+    status = "Enabled"
+  }
+}
