@@ -154,5 +154,4 @@ IAMにてIDプロバイダを追加します。
 - 対象者: `sts.amazonaws.com`
 
 # TODO
-- S3のログをGlacierにアーカイブ
 - アプリログ改善（JSON化、FireLensで出力先変更）
