@@ -53,8 +53,8 @@
       "logDriver": "awslogs",
       "options": {
         "awslogs-region": "${region}",
-        "awslogs-group": "${app_name}",
-        "awslogs-stream-prefix": "ecs/rails_web",
+        "awslogs-group": "${awslogs_group}",
+        "awslogs-stream-prefix": "rails_web",
         "awslogs-create-group": "true"
       }
     }
@@ -97,8 +97,8 @@
       "logDriver": "awslogs",
       "options": {
         "awslogs-region": "${region}",
-        "awslogs-group": "${app_name}",
-        "awslogs-stream-prefix": "ecs/nginx",
+        "awslogs-group": "${awslogs_group}",
+        "awslogs-stream-prefix": "nginx",
         "awslogs-create-group": "true"
       }
     }

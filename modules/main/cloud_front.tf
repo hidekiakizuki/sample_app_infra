@@ -15,7 +15,7 @@ resource "aws_cloudfront_distribution" "rails_web" {
   is_ipv6_enabled  = true
   retain_on_delete = true
 
-  aliases    = [var.app_domain_name]
+  aliases = [var.app_domain_name]
 
   # コスト削減のためnullにします。
   web_acl_id = null # aws_wafv2_web_acl.cloudfront_active.arn
