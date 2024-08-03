@@ -142,12 +142,14 @@ aws sns confirm-subscription \
 AWSマネジメントコンソールから手動でinfo, warn, errorを作成します。
 予めSlackで通知先チャンネルを作成しておき、SNS topicを設定してください。
 
-### 21. WAF作成
+### 21. EventBridge作成
 
-### 22. CloudFront作成
+### 22. WAF作成
+
+### 23. CloudFront作成
 ドメインを管理しているAWSアカウントのRoute53でAレコード作成し、エイリアスにこのディストリビューションを指定します。
 
-### 23. GitHubのIDプロバイダを追加
+### 24. GitHubのIDプロバイダを追加
 IAMにてIDプロバイダを追加します。
 - プロバイダのタイプ: `OpenID Connect`
 - プロバイダのURL: `https://token.actions.githubusercontent.com`
