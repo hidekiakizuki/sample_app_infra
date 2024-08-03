@@ -61,6 +61,7 @@ resource "aws_scheduler_schedule" "cloud_watch_logs_export" {
       "${path.module}/files/json/event_bridge_target_input/cloud_watch_logs_export.json.tpl",
       {
         log_group_name     = each.value.log_group_name
+        destination        = aws_s3_bucket.cloud_watch_logs_backups.bucket
         destination_prefix = each.value.destination_prefix
       }
     )
