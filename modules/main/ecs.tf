@@ -123,6 +123,7 @@ resource "aws_ecs_task_definition" "rails_web" {
       region          = data.aws_region.current.name
       nginx_image     = "${aws_ecr_repository.nginx.repository_url}:dummy"
       rails_web_image = "${aws_ecr_repository.rails_web.repository_url}:dummy"
+      awslogs_group   = aws_cloudwatch_log_group.ecs_container.name
     }
   )
   track_latest = true

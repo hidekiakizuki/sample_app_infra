@@ -504,3 +504,46 @@ data "aws_iam_policy_document" "sns_topic" {
 
   version = "2012-10-17"
 }
+
+resource "aws_iam_role" "cloud_watch_logs_export" {
+  name                 = "cloud-watch-logs-export"
+  managed_policy_arns  = [aws_iam_policy.cloud_watch_logs_export.arn, "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"]
+  assume_role_policy   = data.aws_iam_policy_document.scheduler_assume_role.json
+  max_session_duration = 3600
+}
+
+resource "aws_iam_policy" "cloud_watch_logs_export" {
+  name   = "cloud-watch-logs-export"
+  policy = data.aws_iam_policy_document.cloud_watch_logs_export.json
+}
+
+data "aws_iam_policy_document" "cloud_watch_logs_export" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateExportTask",
+      "logs:CancelExportTask",
+      "logs:DescribeExportTasks",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams"
+    ]
+    resources = ["*"]
+  }
+
+  version = "2012-10-17"
+}
+
+data "aws_iam_policy_document" "scheduler_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+
+  version = "2012-10-17"
+}
