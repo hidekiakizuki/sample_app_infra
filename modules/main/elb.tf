@@ -17,7 +17,7 @@ resource "aws_lb_listener" "rails_web_https" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = data.aws_acm_certificate.app_region.arn
+  certificate_arn   = data.aws_acm_certificate.wildcard_domain.arn
 
   default_action {
     type             = "forward"
@@ -106,7 +106,7 @@ resource "aws_lb_target_group" "rails_web_g" {
   }
 }
 
-data "aws_acm_certificate" "app_region" {
+data "aws_acm_certificate" "wildcard_domain" {
   domain = var.root_domain_name
 }
 
