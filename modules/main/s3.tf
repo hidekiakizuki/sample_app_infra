@@ -120,3 +120,37 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloud_watch_logs_backups" {
     status = "Enabled"
   }
 }
+
+resource "aws_s3_bucket" "fluent_bit_config" {
+  bucket        = "fluent-bit-config-${data.aws_caller_identity.current.account_id}"
+  force_destroy = false
+}
+
+resource "aws_s3_object" "extra" {
+  bucket = aws_s3_bucket.fluent_bit_config.bucket
+  key    = "extra.conf"
+  source = "${path.module}/files/conf/fluent-bit/extra.conf"
+
+  etag   = filemd5("${path.module}/files/conf/fluent-bit/extra.conf")
+}
+
+resource "aws_s3_object" "nginx_access_log_parser" {
+  bucket = aws_s3_bucket.fluent_bit_config.bucket
+  key    = "nginx_access_log_parser.conf"
+  source = "${path.module}/files/conf/fluent-bit/nginx_access_log_parser.conf"
+
+  etag   = filemd5("${path.module}/files/conf/fluent-bit/nginx_access_log_parser.conf")
+}
+
+resource "aws_s3_object" "nginx_error_log_parser" {
+  bucket = aws_s3_bucket.fluent_bit_config.bucket
+  key    = "nginx_error_log_parser.conf"
+  source = "${path.module}/files/conf/fluent-bit/nginx_error_log_parser.conf"
+
+  etag   = filemd5("${path.module}/files/conf/fluent-bit/nginx_error_log_parser.conf")
+}
+
+resource "aws_s3_bucket" "ecs_container_logs" {
+  bucket        = "ecs-container-logs-${data.aws_caller_identity.current.account_id}"
+  force_destroy = false
+}

@@ -89,7 +89,7 @@ terraform import module.production.aws_dynamodb_table.terraform_state_lock terra
 
 ### 7. VPC作成
 
-### 8. IAM作成
+### 8. IAM、Firehose、CloudWatch Logs作成
 
 ### 9. KMS作成
 
@@ -115,15 +115,13 @@ ALBとCloudFrontそれぞれで利用します。
 
 ### 14. ALB作成
 
-### 15. CloudWatch Logs作成
+### 15. ECS作成
 
-### 16. ECS作成
+### 16. CodeDeploy作成
 
-### 17. CodeDeploy作成
+### 17. CloudWatch Alarm作成
 
-### 18. CloudWatch Alarm作成
-
-### 19. SNS作成
+### 18. SNS作成
 メールが届いたら「Confirm subscription」のリンクをクリックせずに、そのリンク先のURLに含まれているTokenを抜き出し、
 AWS CLI経由で認証します。  
 これにより unsubscribe リンクを誤ってクリックしてしまうことを防止できます。
@@ -138,22 +136,34 @@ aws sns confirm-subscription \
 
 もし誤ってメールの「Confirm subscription」をクリックしてしまったら、該当サブスクリプションを削除して作り直し、上記を実行してください。（一度メールからクリックするとやり直しはできません。）
 
-### 20. Chatbot作成
+### 19. Chatbot作成
 AWSマネジメントコンソールから手動でinfo, warn, errorを作成します。
 予めSlackで通知先チャンネルを作成しておき、SNS topicを設定してください。
 
-### 21. EventBridge作成
+### 20. EventBridge作成
 
-### 22. WAF作成
+### 21. WAF作成
 
-### 23. CloudFront作成
+### 22. CloudFront作成
 ドメインを管理しているAWSアカウントのRoute53でAレコード作成し、エイリアスにこのディストリビューションを指定します。
 
-### 24. GitHubのIDプロバイダを追加
+### 23. GitHubのIDプロバイダを追加
 IAMにてIDプロバイダを追加します。
 - プロバイダのタイプ: `OpenID Connect`
 - プロバイダのURL: `https://token.actions.githubusercontent.com`
 - 対象者: `sts.amazonaws.com`
 
 # TODO
-- アプリログ改善（JSON化、FireLensで出力先変更）
+- タスク定義でFirelensに切り替え
+- 定期バッチ処理、非同期処理対応
+
+# 備考
+ECSからのログの流れ
+
+ECS
+ ├─> CloudWatch Logs (/ecs/firelens/fluent-bit:未定) # Fluent Bitのログを出力（TODO: ECSタスク定義にて定義）
+ └─> FireLens (Fluent Bit)
+      ├─> Firehose (ecs-container-logs)
+      │    ├─> S3 (ecs-container-logs-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
+      │    └─> CloudWatch Logs (/firehose/errors: ecs-firelens-firehose-s3) # Firehoseエラー
+      └─> CloudWatch Logs (/ecs/container-errors: ECS_FAMILY名*) # コンテナのエラーログのみを出力
