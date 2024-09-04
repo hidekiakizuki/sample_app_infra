@@ -158,8 +158,8 @@ IAMにてIDプロバイダを追加します。
 - 定期バッチ処理、非同期処理対応
 
 # 備考
-ECSからのログの流れ
-
+- ECSからのログの流れ
+```
 ECS
  ├─> CloudWatch Logs (/ecs/firelens/fluent-bit:未定) # Fluent Bitのログを出力（TODO: ECSタスク定義にて定義）
  └─> FireLens (Fluent Bit)
@@ -167,3 +167,4 @@ ECS
       │    ├─> S3 (ecs-container-logs-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
       │    └─> CloudWatch Logs (/firehose/errors: ecs-firelens-firehose-s3) # Firehoseエラー
       └─> CloudWatch Logs (/ecs/container-errors: ECS_FAMILY名*) # コンテナのエラーログのみを出力
+```
