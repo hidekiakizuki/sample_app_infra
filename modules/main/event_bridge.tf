@@ -5,36 +5,49 @@ resource "aws_cloudwatch_event_rule" "ecs_task_stopped" {
 
 resource "aws_cloudwatch_event_target" "ecs_task_stopped_to_sns" {
   target_id  = "ecs_task_stopped_to_sns"
-  rule       = "ecs-task-stopped"
+  rule       = aws_cloudwatch_event_rule.ecs_task_stopped.name
   arn        = aws_sns_topic.error.arn
   depends_on = [aws_cloudwatch_event_rule.ecs_task_stopped]
 }
 
 resource "aws_cloudwatch_event_target" "ecs_task_stopped_to_cloud_watch_logs" {
   target_id  = "ecs_task_stopped_to_cloud_watch_logs"
-  rule       = "ecs-task-stopped"
+  rule       = aws_cloudwatch_event_rule.ecs_task_stopped.name
   arn        = aws_cloudwatch_log_group.ecs_task_stopped.arn
   depends_on = [aws_cloudwatch_event_rule.ecs_task_stopped]
 }
 
 locals {
   event_bridge_schedules = {
+    # TODO: 削除予定
     ecs-container = {
       schedule           = "rate(${aws_cloudwatch_log_group.ecs_container.retention_in_days - 1} days)"
       log_group_name     = aws_cloudwatch_log_group.ecs_container.name
       destination_prefix = "ecs_container"
     }
 
+    fluent-bit = {
+      schedule           = "rate(${aws_cloudwatch_log_group.firelens_fluent_bit.retention_in_days - 1} days)"
+      log_group_name     = aws_cloudwatch_log_group.firelens_fluent_bit.name
+      destination_prefix = aws_cloudwatch_log_group.firelens_fluent_bit.name
+    }
+
+    firehose_errors = {
+      schedule           = "rate(${aws_cloudwatch_log_group.firehose_errors.retention_in_days - 1} days)"
+      log_group_name     = aws_cloudwatch_log_group.firehose_errors.name
+      destination_prefix = aws_cloudwatch_log_group.firehose_errors.name
+    }
+
     rds = {
       schedule           = "rate(${aws_cloudwatch_log_group.rds.retention_in_days - 1} days)"
       log_group_name     = aws_cloudwatch_log_group.rds.name
-      destination_prefix = "rds"
+      destination_prefix = aws_cloudwatch_log_group.rds.name
     }
 
     ecs-task-stopped = {
       schedule           = "rate(${aws_cloudwatch_log_group.ecs_task_stopped.retention_in_days - 1} days)"
       log_group_name     = aws_cloudwatch_log_group.ecs_task_stopped.name
-      destination_prefix = "ecs_task_stopped"
+      destination_prefix = aws_cloudwatch_log_group.ecs_task_stopped.name
     }
   }
 }
