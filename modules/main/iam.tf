@@ -39,7 +39,10 @@ data "aws_iam_policy_document" "ecs_task" {
     actions = [
       "firehose:PutRecordBatch"
     ]
-    resources = [aws_kinesis_firehose_delivery_stream.ecs_container_logs.arn]
+    resources = [
+      aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_app.arn,
+      aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.arn
+    ]
   }
 
   statement {
@@ -50,8 +53,8 @@ data "aws_iam_policy_document" "ecs_task" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "${aws_cloudwatch_log_group.firelens_fluent_bit.arn}:log-stream:*",
-      "${aws_cloudwatch_log_group.ecs_container_errors.arn}:log-stream:*"
+      "${aws_cloudwatch_log_group.firelens.arn}:log-stream:*",
+      "${aws_cloudwatch_log_group.ecs_container_error_logs.arn}:log-stream:*"
     ]
   }
 
@@ -125,8 +128,10 @@ data "aws_iam_policy_document" "firehose" {
       "s3:PutObject"
     ]
     resources = [
-      aws_s3_bucket.ecs_container_logs.arn,
-      "${aws_s3_bucket.ecs_container_logs.arn}/*",
+      aws_s3_bucket.ecs_container_logs_web_app.arn,
+      "${aws_s3_bucket.ecs_container_logs_web_app.arn}/*",
+      aws_s3_bucket.ecs_container_logs_web_server.arn,
+      "${aws_s3_bucket.ecs_container_logs_web_server.arn}/*"
     ]
   }
 
@@ -220,8 +225,7 @@ data "aws_iam_policy_document" "git_hub_actions_deploy" {
       "ecr:UploadLayerPart",
       "ecr:ListImages",
       "ecr:CompleteLayerUpload",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:GetAuthorizationToken"
+      "ecr:BatchCheckLayerAvailability"
     ]
     resources = ["arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/*"]
   }
@@ -229,18 +233,9 @@ data "aws_iam_policy_document" "git_hub_actions_deploy" {
   statement {
     effect = "Allow"
     actions = [
-      "ecs:DescribeServices",
+      "ecs:DescribeServices"
     ]
     resources = ["arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/*"]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "ecs:DescribeTaskDefinition",
-      "ecs:RegisterTaskDefinition"
-    ]
-    resources = ["arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:task-definition/*"]
   }
 
   statement {
@@ -251,7 +246,7 @@ data "aws_iam_policy_document" "git_hub_actions_deploy" {
       "codedeploy:CreateDeployment",
       "codedeploy:GetDeployment",
       "codedeploy:GetDeploymentConfig",
-      "codedeploy:RegisterApplicationRevision",
+      "codedeploy:RegisterApplicationRevision"
     ]
     resources = ["arn:aws:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"]
   }
@@ -265,6 +260,16 @@ data "aws_iam_policy_document" "git_hub_actions_deploy" {
       aws_iam_role.ecs_task.arn,
       aws_iam_role.ecs_task_execution.arn
     ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "ecs:DescribeTaskDefinition",
+      "ecs:RegisterTaskDefinition"
+    ]
+    resources = ["*"]
   }
 
   version = "2012-10-17"

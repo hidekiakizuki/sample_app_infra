@@ -154,17 +154,19 @@ IAMにてIDプロバイダを追加します。
 - 対象者: `sts.amazonaws.com`
 
 # TODO
-- タスク定義でFirelensに切り替え
-- 定期バッチ処理、非同期処理対応
+- バッチ処理、非同期処理、外部公開API対応
 
 # 備考
 - ECSからのログの流れ
 ```
 ECS
- ├─> CloudWatch Logs (/ecs/firelens/fluent-bit:未定) # Fluent Bitのログを出力（TODO: ECSタスク定義にて定義）
+ ├─> CloudWatch Logs (/ecs/container/firelens: web) # Fluent Bitのログを出力
  └─> FireLens (Fluent Bit)
-      ├─> Firehose (ecs-container-logs)
-      │    ├─> S3 (ecs-container-logs-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
-      │    └─> CloudWatch Logs (/firehose/errors: ecs-firelens-firehose-s3) # Firehoseエラー
-      └─> CloudWatch Logs (/ecs/container-errors: ECS_FAMILY名*) # コンテナのエラーログのみを出力
+      ├─> Firehose (ecs-container-logs-web-server)
+      │    ├─> S3 (ecs-container-logs-web-server-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
+      │    └─> CloudWatch Logs (/firehose/errors: ecs-web-server-firelens-firehose-s3) # Firehoseエラー
+      ├─> Firehose (ecs-container-logs-web-app)
+      │    ├─> S3 (ecs-container-logs-web-app-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
+      │    └─> CloudWatch Logs (/firehose/errors: ecs-web-app-firelens-firehose-s3) # Firehoseエラー
+      └─> CloudWatch Logs (/ecs/container/error-logs: web) # コンテナのエラーログのみを出力
 ```

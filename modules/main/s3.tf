@@ -126,12 +126,12 @@ resource "aws_s3_bucket" "fluent_bit_config" {
   force_destroy = false
 }
 
-resource "aws_s3_object" "extra" {
+resource "aws_s3_object" "web_extra" {
   bucket = aws_s3_bucket.fluent_bit_config.bucket
-  key    = "extra.conf"
-  source = "${path.module}/files/conf/fluent-bit/extra.conf"
+  key    = "web_extra.conf"
+  source = "${path.module}/files/conf/fluent-bit/web_extra.conf"
 
-  etag   = filemd5("${path.module}/files/conf/fluent-bit/extra.conf")
+  etag   = filemd5("${path.module}/files/conf/fluent-bit/web_extra.conf")
 }
 
 resource "aws_s3_object" "nginx_access_log_parser" {
@@ -150,7 +150,12 @@ resource "aws_s3_object" "nginx_error_log_parser" {
   etag   = filemd5("${path.module}/files/conf/fluent-bit/nginx_error_log_parser.conf")
 }
 
-resource "aws_s3_bucket" "ecs_container_logs" {
-  bucket        = "ecs-container-logs-${data.aws_caller_identity.current.account_id}"
+resource "aws_s3_bucket" "ecs_container_logs_web_server" {
+  bucket        = "ecs-container-logs-web-server-${data.aws_caller_identity.current.account_id}"
+  force_destroy = false
+}
+
+resource "aws_s3_bucket" "ecs_container_logs_web_app" {
+  bucket        = "ecs-container-logs-web-app-${data.aws_caller_identity.current.account_id}"
   force_destroy = false
 }

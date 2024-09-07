@@ -12,3 +12,11 @@ locals {
 
   ipv6_translation_prefix = "64:ff9b::/96"
 }
+
+locals {
+  container_names = {
+    web_app    = "web-app"
+    web_server = "web-server"
+    log_router = "log-router"
+  }
+}

@@ -1,16 +1,16 @@
-resource "aws_codedeploy_app" "rails_web" {
+resource "aws_codedeploy_app" "web" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
   compute_platform = "ECS"
-  name             = "rails-web"
+  name             = "web"
 }
 
-resource "aws_codedeploy_deployment_group" "rails_web" {
+resource "aws_codedeploy_deployment_group" "web" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  app_name               = aws_codedeploy_app.rails_web[0].name
+  app_name               = aws_codedeploy_app.web[0].name
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
-  deployment_group_name  = "rails-web"
+  deployment_group_name  = "web"
   service_role_arn       = aws_iam_role.ecs_code_deploy.arn
 
   auto_rollback_configuration {
@@ -34,23 +34,23 @@ resource "aws_codedeploy_deployment_group" "rails_web" {
   }
 
   ecs_service {
-    cluster_name = aws_ecs_cluster.rails_web.name
-    service_name = aws_ecs_service.rails_web[0].name
+    cluster_name = aws_ecs_cluster.web.name
+    service_name = aws_ecs_service.web[0].name
   }
 
   load_balancer_info {
     target_group_pair_info {
       prod_traffic_route {
-        listener_arns = [aws_lb_listener.rails_web_https.arn]
+        listener_arns = [aws_lb_listener.https.arn]
       }
       target_group {
-        name = aws_lb_target_group.rails_web_b.name
+        name = aws_lb_target_group.web_b.name
       }
       target_group {
-        name = aws_lb_target_group.rails_web_g.name
+        name = aws_lb_target_group.web_g.name
       }
       test_traffic_route {
-        listener_arns = [aws_lb_listener.rails_web_test.arn]
+        listener_arns = [aws_lb_listener.test_http_8080.arn]
       }
     }
   }

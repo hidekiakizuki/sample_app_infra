@@ -1,16 +1,10 @@
-# TODO: 削除予定
-resource "aws_cloudwatch_log_group" "ecs_container" {
-  name              = "ecs_container"
+resource "aws_cloudwatch_log_group" "firelens" {
+  name              = "/ecs/container/firelens"
   retention_in_days = 14
 }
 
-resource "aws_cloudwatch_log_group" "firelens_fluent_bit" {
-  name              = "/ecs/firelens/fluent-bit"
-  retention_in_days = 14
-}
-
-resource "aws_cloudwatch_log_group" "ecs_container_errors" {
-  name              = "/ecs/container-errors"
+resource "aws_cloudwatch_log_group" "ecs_container_error_logs" {
+  name              = "/ecs/container/error-logs"
   retention_in_days = 14
 }
 
@@ -19,8 +13,13 @@ resource "aws_cloudwatch_log_group" "firehose_errors" {
   retention_in_days = 14
 }
 
-resource "aws_cloudwatch_log_stream" "ecs_firelens_firehose_s3" {
-  name           = "ecs-firelens-firehose-s3"
+resource "aws_cloudwatch_log_stream" "ecs_web_app_firelens_firehose_s3" {
+  name           = "ecs-web-app-firelens-firehose-s3"
+  log_group_name = aws_cloudwatch_log_group.firehose_errors.name
+}
+
+resource "aws_cloudwatch_log_stream" "ecs_web_server_firelens_firehose_s3" {
+  name           = "ecs-web-server-firelens-firehose-s3"
   log_group_name = aws_cloudwatch_log_group.firehose_errors.name
 }
 

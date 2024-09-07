@@ -1,5 +1,5 @@
-resource "aws_ecs_cluster" "rails_web" {
-  name = "rails-web"
+resource "aws_ecs_cluster" "web" {
+  name = "web"
 
   configuration {
     execute_command_configuration {
@@ -8,7 +8,7 @@ resource "aws_ecs_cluster" "rails_web" {
   }
 
   service_connect_defaults {
-    namespace = aws_service_discovery_http_namespace.rails_web.arn
+    namespace = aws_service_discovery_http_namespace.web.arn
   }
 
   setting {
@@ -17,21 +17,21 @@ resource "aws_ecs_cluster" "rails_web" {
   }
 }
 
-resource "aws_service_discovery_http_namespace" "rails_web" {
-  name = "rails-web"
+resource "aws_service_discovery_http_namespace" "web" {
+  name = "web"
 
   tags = {
     AmazonECSManaged = "true"
   }
 }
 
-resource "aws_ecs_service" "rails_web" {
+resource "aws_ecs_service" "web" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  name = "rails-web"
+  name = "web"
 
-  cluster         = aws_ecs_cluster.rails_web.id
-  task_definition = aws_ecs_task_definition.rails_web.arn
+  cluster         = aws_ecs_cluster.web.id
+  task_definition = aws_ecs_task_definition.web.arn
   desired_count   = var.service_suspend_mode ? 0 : var.ecs.service.desired_count
 
   launch_type         = "FARGATE"
@@ -50,7 +50,7 @@ resource "aws_ecs_service" "rails_web" {
 
   load_balancer {
     target_group_arn = local.current_https_target_group_arn
-    container_name   = "nginx"
+    container_name   = local.container_names.web_server
     container_port   = 80
   }
 
@@ -68,10 +68,10 @@ resource "aws_ecs_service" "rails_web" {
   }
 }
 
-resource "aws_appautoscaling_target" "rails_web" {
+resource "aws_appautoscaling_target" "web" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  resource_id = "service/${aws_ecs_cluster.rails_web.name}/${aws_ecs_service.rails_web[0].name}"
+  resource_id = "service/${aws_ecs_cluster.web.name}/${aws_ecs_service.web[0].name}"
   role_arn    = data.aws_iam_role.appautoscaling_ecs.arn
 
   service_namespace  = "ecs"
@@ -84,15 +84,15 @@ data "aws_iam_role" "appautoscaling_ecs" {
   name = "AWSServiceRoleForApplicationAutoScaling_ECSService"
 }
 
-resource "aws_appautoscaling_policy" "rails_web" {
+resource "aws_appautoscaling_policy" "web" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  name        = "rails-web"
-  resource_id = aws_appautoscaling_target.rails_web[0].resource_id
+  name        = "web"
+  resource_id = aws_appautoscaling_target.web[0].resource_id
 
   policy_type        = "TargetTrackingScaling"
-  service_namespace  = aws_appautoscaling_target.rails_web[0].service_namespace
-  scalable_dimension = aws_appautoscaling_target.rails_web[0].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.web[0].service_namespace
+  scalable_dimension = aws_appautoscaling_target.web[0].scalable_dimension
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
@@ -105,8 +105,8 @@ resource "aws_appautoscaling_policy" "rails_web" {
   }
 }
 
-resource "aws_ecs_task_definition" "rails_web" {
-  family = "rails-web"
+resource "aws_ecs_task_definition" "web" {
+  family = "web"
 
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
@@ -117,13 +117,23 @@ resource "aws_ecs_task_definition" "rails_web" {
   memory                   = var.ecs.task_definition.memory
 
   container_definitions = templatefile(
-    "${path.module}/files/json/task_definitions/rails_web.json.tpl",
+    "${path.module}/files/json/task_definitions/web.json.tpl",
     {
-      app_name        = var.app_name
-      region          = data.aws_region.current.name
-      nginx_image     = "${aws_ecr_repository.nginx.repository_url}:dummy"
-      rails_web_image = "${aws_ecr_repository.rails_web.repository_url}:dummy"
-      awslogs_group   = aws_cloudwatch_log_group.ecs_container.name
+      app_name                                      = var.app_name
+      region                                        = data.aws_region.current.name
+      container_name_web_app                        = local.container_names.web_app
+      container_name_web_server                     = local.container_names.web_server
+      container_name_log_router                     = local.container_names.log_router
+      web_app_image                                 = "${aws_ecr_repository.web_app.repository_url}:dummy"
+      web_server_image                              = "${aws_ecr_repository.web_server.repository_url}:dummy"
+      log_router_image                              = "public.ecr.aws/aws-observability/aws-for-fluent-bit:init-latest"
+      cloudwatch_log_group_ecs_container_error_logs = aws_cloudwatch_log_group.ecs_container_error_logs.name
+      firehose_delivery_stream_web_app              = aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_app.name
+      firehose_delivery_stream_web_server           = aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.name
+      web_extra_conf                                = aws_s3_object.web_extra.arn
+      nginx_access_log_parser_conf                  = aws_s3_object.nginx_access_log_parser.arn
+      nginx_error_log_parser_conf                   = aws_s3_object.nginx_error_log_parser.arn
+      cloudwatch_log_group_firelens                 = aws_cloudwatch_log_group.firelens.name
     }
   )
   track_latest = true

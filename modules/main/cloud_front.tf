@@ -1,4 +1,4 @@
-resource "aws_cloudfront_distribution" "rails_web" {
+resource "aws_cloudfront_distribution" "main" {
   origin {
     domain_name = aws_lb.alb.dns_name
     origin_id   = aws_lb.alb.dns_name
@@ -21,11 +21,11 @@ resource "aws_cloudfront_distribution" "rails_web" {
   web_acl_id = null # aws_wafv2_web_acl.cloudfront_active.arn
 
   default_cache_behavior {
-    cache_policy_id          = aws_cloudfront_cache_policy.rails_web.id
+    cache_policy_id          = aws_cloudfront_cache_policy.main.id
     allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods           = ["GET", "HEAD"]
     target_origin_id         = aws_lb.alb.dns_name
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.rails_web.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.main.id
     compress                 = true
     viewer_protocol_policy   = "redirect-to-https"
   }
@@ -52,7 +52,7 @@ data "aws_acm_certificate" "virginia" {
   domain   = var.root_domain_name
 }
 
-resource "aws_cloudfront_origin_request_policy" "rails_web" {
+resource "aws_cloudfront_origin_request_policy" "main" {
   name    = "all-viewer"
   comment = "Policy to forward all parameters in viewer requests"
 
@@ -69,7 +69,7 @@ resource "aws_cloudfront_origin_request_policy" "rails_web" {
   }
 }
 
-resource "aws_cloudfront_cache_policy" "rails_web" {
+resource "aws_cloudfront_cache_policy" "main" {
   name        = "caching-disabled"
   comment     = "Policy with caching disabled"
   default_ttl = 0

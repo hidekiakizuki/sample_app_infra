@@ -1,5 +1,5 @@
-resource "aws_ecr_repository" "rails_web" {
-  name                 = "${var.app_name}/rails_web"
+resource "aws_ecr_repository" "web_app" {
+  name                 = "${var.app_name}/web_app"
   image_tag_mutability = "IMMUTABLE"
 
   encryption_configuration {
@@ -10,8 +10,8 @@ resource "aws_ecr_repository" "rails_web" {
   }
 }
 
-resource "aws_ecr_repository" "nginx" {
-  name                 = "${var.app_name}/nginx"
+resource "aws_ecr_repository" "web_server" {
+  name                 = "${var.app_name}/web_server"
   image_tag_mutability = "IMMUTABLE"
 
   encryption_configuration {
