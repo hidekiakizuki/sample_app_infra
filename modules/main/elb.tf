@@ -12,7 +12,7 @@ resource "aws_lb" "alb" {
   }
 }
 
-resource "aws_lb_listener" "rails_web_https" {
+resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 443
   protocol          = "HTTPS"
@@ -35,7 +35,7 @@ resource "aws_lb_listener" "rails_web_https" {
   }
 }
 
-resource "aws_lb_listener" "rails_web_http" {
+resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 80
   protocol          = "HTTP"
@@ -57,7 +57,7 @@ resource "aws_lb_listener" "rails_web_http" {
   }
 }
 
-resource "aws_lb_listener" "rails_web_test" {
+resource "aws_lb_listener" "test_http_8080" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 8080
   protocol          = "HTTP"
@@ -78,8 +78,8 @@ resource "aws_lb_listener" "rails_web_test" {
   }
 }
 
-resource "aws_lb_target_group" "rails_web_b" {
-  name            = "rails-web-b"
+resource "aws_lb_target_group" "web_b" {
+  name            = "web-b"
   port            = 80
   protocol        = "HTTP"
   target_type     = "ip"
@@ -92,8 +92,8 @@ resource "aws_lb_target_group" "rails_web_b" {
   }
 }
 
-resource "aws_lb_target_group" "rails_web_g" {
-  name            = "rails-web-g"
+resource "aws_lb_target_group" "web_g" {
+  name            = "web-g"
   port            = 80
   protocol        = "HTTP"
   target_type     = "ip"
@@ -124,5 +124,5 @@ data "external" "current_https_target_group_arn" {
 }
 
 locals {
-  current_https_target_group_arn = contains(["null", null], data.external.current_https_target_group_arn.result.arn) ? aws_lb_target_group.rails_web_b.arn : data.external.current_https_target_group_arn.result.arn
+  current_https_target_group_arn = contains(["null", null], data.external.current_https_target_group_arn.result.arn) ? aws_lb_target_group.web_b.arn : data.external.current_https_target_group_arn.result.arn
 }

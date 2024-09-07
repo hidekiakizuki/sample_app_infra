@@ -19,17 +19,10 @@ resource "aws_cloudwatch_event_target" "ecs_task_stopped_to_cloud_watch_logs" {
 
 locals {
   event_bridge_schedules = {
-    # TODO: 削除予定
-    ecs-container = {
-      schedule           = "rate(${aws_cloudwatch_log_group.ecs_container.retention_in_days - 1} days)"
-      log_group_name     = aws_cloudwatch_log_group.ecs_container.name
-      destination_prefix = "ecs_container"
-    }
-
-    fluent-bit = {
-      schedule           = "rate(${aws_cloudwatch_log_group.firelens_fluent_bit.retention_in_days - 1} days)"
-      log_group_name     = aws_cloudwatch_log_group.firelens_fluent_bit.name
-      destination_prefix = aws_cloudwatch_log_group.firelens_fluent_bit.name
+    firelens = {
+      schedule           = "rate(${aws_cloudwatch_log_group.firelens.retention_in_days - 1} days)"
+      log_group_name     = aws_cloudwatch_log_group.firelens.name
+      destination_prefix = aws_cloudwatch_log_group.firelens.name
     }
 
     firehose_errors = {

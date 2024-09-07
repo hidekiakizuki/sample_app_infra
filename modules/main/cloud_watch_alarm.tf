@@ -1,7 +1,7 @@
-resource "aws_cloudwatch_metric_alarm" "rails_web_alarm_high" {
+resource "aws_cloudwatch_metric_alarm" "web_alarm_high" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  alarm_name          = "TargetTracking-service/${aws_ecs_cluster.rails_web.name}/${aws_ecs_service.rails_web[0].name}-AlarmHigh"
+  alarm_name          = "TargetTracking-service/${aws_ecs_cluster.web.name}/${aws_ecs_service.web[0].name}-AlarmHigh"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   metric_name         = "MemoryUtilization"
@@ -12,20 +12,20 @@ resource "aws_cloudwatch_metric_alarm" "rails_web_alarm_high" {
   unit                = "Percent"
 
   dimensions = {
-    ClusterName = aws_ecs_cluster.rails_web.name
-    ServiceName = aws_ecs_service.rails_web[0].name
+    ClusterName = aws_ecs_cluster.web.name
+    ServiceName = aws_ecs_service.web[0].name
   }
 
-  alarm_description = "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy ${aws_appautoscaling_policy.rails_web[0].arn}."
+  alarm_description = "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy ${aws_appautoscaling_policy.web[0].arn}."
   actions_enabled   = true
-  alarm_actions     = [aws_appautoscaling_policy.rails_web[0].arn, aws_sns_topic.warn.arn]
+  alarm_actions     = [aws_appautoscaling_policy.web[0].arn, aws_sns_topic.warn.arn]
   ok_actions        = [aws_sns_topic.warn.arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "rails_web_alarm_low" {
+resource "aws_cloudwatch_metric_alarm" "web_alarm_low" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  alarm_name          = "TargetTracking-service/${aws_ecs_cluster.rails_web.name}/${aws_ecs_service.rails_web[0].name}-AlarmLow"
+  alarm_name          = "TargetTracking-service/${aws_ecs_cluster.web.name}/${aws_ecs_service.web[0].name}-AlarmLow"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 15
   metric_name         = "MemoryUtilization"
@@ -36,19 +36,19 @@ resource "aws_cloudwatch_metric_alarm" "rails_web_alarm_low" {
   unit                = "Percent"
 
   dimensions = {
-    ClusterName = aws_ecs_cluster.rails_web.name
-    ServiceName = aws_ecs_service.rails_web[0].name
+    ClusterName = aws_ecs_cluster.web.name
+    ServiceName = aws_ecs_service.web[0].name
   }
 
-  alarm_description = "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy ${aws_appautoscaling_policy.rails_web[0].arn}."
+  alarm_description = "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy ${aws_appautoscaling_policy.web[0].arn}."
   actions_enabled   = true
-  alarm_actions     = [aws_appautoscaling_policy.rails_web[0].arn]
+  alarm_actions     = [aws_appautoscaling_policy.web[0].arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_task_count_zero" {
+resource "aws_cloudwatch_metric_alarm" "ecs_web_task_count_zero" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
-  alarm_name          = "ECS/ContainerInsights RunningTaskCount ServiceName=${aws_ecs_service.rails_web[0].name} ClusterName=${aws_ecs_cluster.rails_web.name}"
+  alarm_name          = "ECS/ContainerInsights RunningTaskCount ServiceName=${aws_ecs_service.web[0].name} ClusterName=${aws_ecs_cluster.web.name}"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 5
   metric_name         = "RunningTaskCount"
@@ -58,8 +58,8 @@ resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_task_count_zero" {
   threshold           = 0
 
   dimensions = {
-    ClusterName = aws_ecs_cluster.rails_web.name
-    ServiceName = aws_ecs_service.rails_web[0].name
+    ClusterName = aws_ecs_cluster.web.name
+    ServiceName = aws_ecs_service.web[0].name
   }
 
   alarm_description   = "このアラームは、ECS サービスの実行タスク数が少なくなっていないかどうかを検出するのに役立ちます。実行中のタスク数が少なすぎる場合、アプリケーションがサービス負荷を処理できない可能性があり、パフォーマンスに関する問題が発生することがあります。実行中のタスクがない場合は、ECS サービスが利用できないか、またはデプロイに関する問題が発生している可能性があります。"
@@ -70,15 +70,15 @@ resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_task_count_zero" {
   ok_actions          = [aws_sns_topic.error.arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_cpu_util" {
-  alarm_name          = "ECS CPUUtilized/rails-web"
+resource "aws_cloudwatch_metric_alarm" "ecs_web_cpu_util" {
+  alarm_name          = "ECS CPUUtilized/web"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
   threshold           = 80
 
   metric_query {
     id          = "e1"
-    label       = "rails-web-cpu-utilized"
+    label       = "web-cpu-utilized"
     expression  = "100*(m1/m2)"
     return_data = true
   }
@@ -93,8 +93,8 @@ resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_cpu_util" {
       stat        = "Average"
 
       dimensions = {
-        ClusterName          = "rails-web"
-        TaskDefinitionFamily = "rails-web"
+        ClusterName          = aws_ecs_cluster.web.name
+        TaskDefinitionFamily = aws_ecs_task_definition.web.family
       }
     }
   }
@@ -109,28 +109,28 @@ resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_cpu_util" {
       stat        = "Average"
 
       dimensions = {
-        ClusterName          = "rails-web"
-        TaskDefinitionFamily = "rails-web"
+        ClusterName          = aws_ecs_cluster.web.name
+        TaskDefinitionFamily = aws_ecs_task_definition.web.family
       }
     }
   }
 
-  alarm_description   = "タスク定義 rails-web のCPU使用率が高くなっています。"
+  alarm_description   = "タスク定義 ${aws_ecs_task_definition.web.family} のCPU使用率が高くなっています。"
   datapoints_to_alarm = 1
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.warn.arn]
   ok_actions          = [aws_sns_topic.warn.arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_memory_util" {
-  alarm_name          = "ECS MemoryUtilized/rails-web"
+resource "aws_cloudwatch_metric_alarm" "ecs_web_memory_util" {
+  alarm_name          = "ECS MemoryUtilized/web"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
   threshold           = 80
 
   metric_query {
     id          = "e1"
-    label       = "rails-web-memory-utilized"
+    label       = "web-memory-utilized"
     expression  = "100*(m1/m2)"
     return_data = true
   }
@@ -145,8 +145,8 @@ resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_memory_util" {
       stat        = "Average"
 
       dimensions = {
-        ClusterName          = "rails-web"
-        TaskDefinitionFamily = "rails-web"
+        ClusterName          = aws_ecs_cluster.web.name
+        TaskDefinitionFamily = aws_ecs_task_definition.web.family
       }
     }
   }
@@ -161,28 +161,28 @@ resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_memory_util" {
       stat        = "Average"
 
       dimensions = {
-        ClusterName          = "rails-web"
-        TaskDefinitionFamily = "rails-web"
+        ClusterName          = aws_ecs_cluster.web.name
+        TaskDefinitionFamily = aws_ecs_task_definition.web.family
       }
     }
   }
 
-  alarm_description   = "タスク定義 rails-web のメモリ使用率が高くなっています。"
+  alarm_description   = "タスク定義 ${aws_ecs_task_definition.web.family} のメモリ使用率が高くなっています。"
   datapoints_to_alarm = 1
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.warn.arn]
   ok_actions          = [aws_sns_topic.warn.arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_storage_util" {
-  alarm_name          = "ECS Ephemeral Storage Utilized | rails-web"
+resource "aws_cloudwatch_metric_alarm" "ecs_web_storage_util" {
+  alarm_name          = "ECS Ephemeral Storage Utilized | web"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   threshold           = 80
 
   metric_query {
     id          = "e1"
-    label       = "rails-web-ephemeral-storage-utilized"
+    label       = "web-ephemeral-storage-utilized"
     expression  = "100*(m1/m2)"
     return_data = true
   }
@@ -197,8 +197,8 @@ resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_storage_util" {
       stat        = "Average"
 
       dimensions = {
-        ClusterName          = "rails-web"
-        TaskDefinitionFamily = "rails-web"
+        ClusterName          = aws_ecs_cluster.web.name
+        TaskDefinitionFamily = aws_ecs_task_definition.web.family
       }
     }
   }
@@ -212,13 +212,13 @@ resource "aws_cloudwatch_metric_alarm" "ecs_rails_web_storage_util" {
       stat        = "Average"
 
       dimensions = {
-        ClusterName          = "rails-web"
-        TaskDefinitionFamily = "rails-web"
+        ClusterName          = aws_ecs_cluster.web.name
+        TaskDefinitionFamily = aws_ecs_task_definition.web.family
       }
     }
   }
 
-  alarm_description   = "タスク定義 rails-web のエフェメラルストレージ使用率が高くなっています。"
+  alarm_description   = "タスク定義 ${aws_ecs_task_definition.web.family} のエフェメラルストレージ使用率が高くなっています。"
   datapoints_to_alarm = 1
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.warn.arn]
