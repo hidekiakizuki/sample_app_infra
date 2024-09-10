@@ -116,6 +116,11 @@ ALBとCloudFrontそれぞれで利用します。
 ### 14. ALB作成
 
 ### 15. ECS作成
+設定は正しいのに下記エラーが出る場合があります。
+> reading ECS Task Definition (web): ClientException: Unable to describe task definition.
+
+その場合は、一旦stateを削除すると問題が解説することがあります。
+> terraform state rm module.production.aws_ecs_task_definition.web
 
 ### 16. CodeDeploy作成
 

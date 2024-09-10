@@ -126,10 +126,14 @@
         },
         {
           "name": "aws_fluent_bit_init_s3_2",
-          "value": "${nginx_access_log_parser_conf}"
+          "value": "${web_app_log_parser_conf}"
         },
         {
           "name": "aws_fluent_bit_init_s3_3",
+          "value": "${nginx_access_log_parser_conf}"
+        },
+        {
+          "name": "aws_fluent_bit_init_s3_4",
           "value": "${nginx_error_log_parser_conf}"
         }
     ],
