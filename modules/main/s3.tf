@@ -134,6 +134,14 @@ resource "aws_s3_object" "web_extra" {
   etag   = filemd5("${path.module}/files/conf/fluent-bit/web_extra.conf")
 }
 
+resource "aws_s3_object" "web_app_log_parser" {
+  bucket = aws_s3_bucket.fluent_bit_config.bucket
+  key    = "web_app_log_parser.conf"
+  source = "${path.module}/files/conf/fluent-bit/web_app_log_parser.conf"
+
+  etag   = filemd5("${path.module}/files/conf/fluent-bit/web_app_log_parser.conf")
+}
+
 resource "aws_s3_object" "nginx_access_log_parser" {
   bucket = aws_s3_bucket.fluent_bit_config.bucket
   key    = "nginx_access_log_parser.conf"

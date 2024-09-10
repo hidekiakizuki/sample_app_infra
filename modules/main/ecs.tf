@@ -131,6 +131,7 @@ resource "aws_ecs_task_definition" "web" {
       firehose_delivery_stream_web_app              = aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_app.name
       firehose_delivery_stream_web_server           = aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.name
       web_extra_conf                                = aws_s3_object.web_extra.arn
+      web_app_log_parser_conf                       = aws_s3_object.web_app_log_parser.arn
       nginx_access_log_parser_conf                  = aws_s3_object.nginx_access_log_parser.arn
       nginx_error_log_parser_conf                   = aws_s3_object.nginx_error_log_parser.arn
       cloudwatch_log_group_firelens                 = aws_cloudwatch_log_group.firelens.name
