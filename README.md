@@ -175,3 +175,13 @@ ECS
       │    └─> CloudWatch Logs (/firehose/errors: ecs-web-app-firelens-firehose-s3) # Firehoseエラー
       └─> CloudWatch Logs (/ecs/container/error-logs: web) # コンテナのエラーログのみを出力
 ```
+
+- コンテナに入るコマンド
+```
+aws ecs execute-command --region {region} \
+    --cluster {cluster name} \
+    --task {ecs task arn} \
+    --container {container name} \
+    --interactive \
+    --command "/bin/sh"
+```

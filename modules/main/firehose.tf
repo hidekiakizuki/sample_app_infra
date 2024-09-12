@@ -6,32 +6,12 @@ resource "aws_kinesis_firehose_delivery_stream" "ecs_container_logs_web_app" {
     role_arn   = aws_iam_role.firehose.arn
     bucket_arn = aws_s3_bucket.ecs_container_logs_web_app.arn
 
-    buffering_size = 64 # 動的パーティションニングは64MB以上が必要
+    buffering_size = 64 # 10秒間に取り込むデータ量（MB）を設定することが推奨されています。利用していませんが、動的パーティションニングに必要な64MBを確保しておきます。
 
-    dynamic_partitioning_configuration {
-      enabled = true
-    }
-
-    prefix              = "logs/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/level=!{partitionKeyFromQuery:level}/"
+    prefix              = "logs/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
     error_output_prefix = "errors/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/!{firehose:error-output-type}/"
     custom_time_zone    = "Asia/Tokyo"
-    file_extension      = ".json.gz"
-
-    processing_configuration {
-      enabled = true
-
-      processors {
-        type = "MetadataExtraction"
-        parameters {
-          parameter_name  = "JsonParsingEngine"
-          parameter_value = "JQ-1.6"
-        }
-        parameters {
-          parameter_name  = "MetadataExtractionQuery"
-          parameter_value = "{level:.level}"
-        }
-      }
-    }
+    file_extension      = ".json"
 
     cloudwatch_logging_options {
       enabled         = true
@@ -49,32 +29,12 @@ resource "aws_kinesis_firehose_delivery_stream" "ecs_container_logs_web_server" 
     role_arn   = aws_iam_role.firehose.arn
     bucket_arn = aws_s3_bucket.ecs_container_logs_web_server.arn
 
-    buffering_size = 64 # 動的パーティションニングは64MB以上が必要
+    buffering_size = 64 # 10秒間に取り込むデータ量（MB）を設定することが推奨されています。利用していませんが、動的パーティションニングに必要な64MBを確保しておきます。
 
-    dynamic_partitioning_configuration {
-      enabled = true
-    }
-
-    prefix              = "logs/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/level=!{partitionKeyFromQuery:level}/"
+    prefix              = "logs/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
     error_output_prefix = "errors/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/!{firehose:error-output-type}/"
     custom_time_zone    = "Asia/Tokyo"
-    file_extension      = ".json.gz"
-
-    processing_configuration {
-      enabled = true
-
-      processors {
-        type = "MetadataExtraction"
-        parameters {
-          parameter_name  = "JsonParsingEngine"
-          parameter_value = "JQ-1.6"
-        }
-        parameters {
-          parameter_name  = "MetadataExtractionQuery"
-          parameter_value = "{level:.level}"
-        }
-      }
-    }
+    file_extension      = ".json"
 
     cloudwatch_logging_options {
       enabled         = true

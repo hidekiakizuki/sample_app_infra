@@ -18,6 +18,16 @@
         "protocol": "tcp"
       }
     ],
+    "healthCheck": {
+      "retries": 3,
+      "command": [
+        "CMD-SHELL",
+        "curl -f http://localhost:3000/healthy || exit 1"
+      ],
+      "timeout": 5,
+      "interval": 10,
+      "startPeriod": 30
+    },
     "mountPoints": [
       {
         "sourceVolume": "public",
@@ -62,7 +72,7 @@
     "essential": true,
     "dependsOn": [
       { "containerName": "${container_name_log_router}", "condition": "HEALTHY" },
-      { "containerName": "${container_name_web_app}",  "condition": "START"   }
+      { "containerName": "${container_name_web_app}",  "condition": "HEALTHY"   }
     ],
     "dockerLabels": {
       "Name": "${container_name_web_server}"
@@ -76,6 +86,16 @@
         "protocol": "tcp"
       }
     ],
+    "healthCheck": {
+      "retries": 3,
+      "command": [
+        "CMD-SHELL",
+        "curl -f http://localhost:80/healthy || exit 1"
+      ],
+      "timeout": 5,
+      "interval": 10,
+      "startPeriod": 30
+    },
     "mountPoints": [
       {
         "sourceVolume": "public",
