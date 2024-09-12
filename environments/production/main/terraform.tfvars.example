@@ -55,6 +55,7 @@ allowed_ips_in_maintenance = [
 #   - aws_appautoscaling_policy
 #   - aws_cloudwatch_metric_alarm
 # このフラグをtrueにすることで該当リソースを削除します。
+# lifecycleのignore_changesをコメントアウトしてタスク定義を更新してください。
 delete_before_ecs_task_update = false
 
 # さまざまなリソースを停止、無効化、または0などに更新してコストダウンしたい場合にtrueにします。
