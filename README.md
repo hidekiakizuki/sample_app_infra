@@ -164,7 +164,7 @@ IAMにてIDプロバイダを追加します。
 # 備考
 - ECSからのログの流れ
 ```
-ECS
+ECS - Web
  ├─> CloudWatch Logs (/ecs/container/firelens: web) # Fluent Bitのログを出力
  └─> FireLens (Fluent Bit)
       ├─> Firehose (ecs-container-logs-web-server)
@@ -173,7 +173,17 @@ ECS
       ├─> Firehose (ecs-container-logs-web-app)
       │    ├─> S3 (ecs-container-logs-web-app-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
       │    └─> CloudWatch Logs (/firehose/errors: ecs-web-app-firelens-firehose-s3) # Firehoseエラー
-      └─> CloudWatch Logs (/ecs/container/error-logs: web) # コンテナのエラーログのみを出力
+      └─> CloudWatch Logs (/ecs/container/error-logs: web) # webコンテナのエラーログのみを出力
+```
+
+```
+ECS - Batch
+ ├─> CloudWatch Logs (/ecs/container/logs: batch-default) # batch-defaultコンテナのログを出力（AWS BatchのECSがfirelens対応されるまでこうする？）
+ └─> fluentd（AWS BatchのECSがfirelens対応されるまで実装する？？）
+      ├─> Firehose (ecs-container-logs-batch-default)
+      │    ├─> S3 (ecs-container-logs-batch-default-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
+      │    └─> CloudWatch Logs (/firehose/errors: ecs-batch-default-fluentd-firehose-s3) # Firehoseエラー
+      └─> CloudWatch Logs (/ecs/container/error-logs: batch-default) # batch defaultコンテナのエラーログのみを出力
 ```
 
 - コンテナに入るコマンド
@@ -185,3 +195,10 @@ aws ecs execute-command --region {region} \
     --interactive \
     --command "/bin/sh"
 ```
+
+# TODO
+modules/main/files/json/job_definitions/batch_default.json.tpl
+- assignPublicIpをenabledにする必要あるかも
+    networkConfiguration = {
+      assignPublicIp = "ENABLED"
+    }

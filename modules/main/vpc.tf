@@ -262,6 +262,29 @@ resource "aws_vpc_security_group_egress_rule" "ecs" {
   }
 }
 
+resource "aws_security_group" "batch" {
+  name   = "batch"
+  vpc_id = aws_vpc.default.id
+
+  tags = {
+    Name = "batch"
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "batch" {
+  for_each = local.open_access
+
+  security_group_id = aws_security_group.batch.id
+
+  cidr_ipv4   = each.value.cidr_block
+  cidr_ipv6   = each.value.ipv6_cidr_block
+  ip_protocol = "-1"
+
+  tags = {
+    Name = "open-access-${each.key}"
+  }
+}
+
 resource "aws_security_group" "rds" {
   name   = "rds"
   vpc_id = aws_vpc.default.id

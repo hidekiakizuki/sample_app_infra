@@ -41,7 +41,8 @@ data "aws_iam_policy_document" "ecs_task" {
     ]
     resources = [
       aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_app.arn,
-      aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.arn
+      aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.arn,
+      aws_kinesis_firehose_delivery_stream.ecs_container_logs_batch_default.arn
     ]
   }
 
@@ -54,7 +55,8 @@ data "aws_iam_policy_document" "ecs_task" {
     ]
     resources = [
       "${aws_cloudwatch_log_group.firelens.arn}:log-stream:*",
-      "${aws_cloudwatch_log_group.ecs_container_error_logs.arn}:log-stream:*"
+      "${aws_cloudwatch_log_group.ecs_container_error_logs.arn}:log-stream:*",
+      "${aws_cloudwatch_log_group.ecs_container_logs.arn}:log-stream:*"
     ]
   }
 
@@ -77,12 +79,12 @@ data "aws_iam_policy_document" "ecs_tasks_assume_role" {
 }
 
 resource "aws_iam_role" "ecs_task_execution" {
-  name = "ecs-task-execution"
+  name                = "ecs-task-execution"
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
     aws_iam_policy.parameter_store_secrets_manager_read.arn
   ]
-  assume_role_policy   = data.aws_iam_policy_document.ecs_tasks_assume_role.json
+  assume_role_policy  = data.aws_iam_policy_document.ecs_tasks_assume_role.json
 }
 
 resource "aws_iam_policy" "parameter_store_secrets_manager_read" {
@@ -131,7 +133,9 @@ data "aws_iam_policy_document" "firehose" {
       aws_s3_bucket.ecs_container_logs_web_app.arn,
       "${aws_s3_bucket.ecs_container_logs_web_app.arn}/*",
       aws_s3_bucket.ecs_container_logs_web_server.arn,
-      "${aws_s3_bucket.ecs_container_logs_web_server.arn}/*"
+      "${aws_s3_bucket.ecs_container_logs_web_server.arn}/*",
+      aws_s3_bucket.ecs_container_logs_batch_default.arn,
+      "${aws_s3_bucket.ecs_container_logs_batch_default.arn}/*"
     ]
   }
 
@@ -177,6 +181,31 @@ data "aws_iam_policy_document" "ecs_code_deploy_assume_role" {
       type        = "Service"
       identifiers = ["codedeploy.amazonaws.com"]
     }
+    actions = ["sts:AssumeRole"]
+  }
+
+  version = "2012-10-17"
+}
+
+resource "aws_iam_role" "batch_service" {
+  name                 = "batch-service"
+  assume_role_policy   = data.aws_iam_policy_document.batch_service_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "batch_service" {
+  role       = aws_iam_role.batch_service.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+}
+
+data "aws_iam_policy_document" "batch_service_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["batch.amazonaws.com"]
+    }
+
     actions = ["sts:AssumeRole"]
   }
 

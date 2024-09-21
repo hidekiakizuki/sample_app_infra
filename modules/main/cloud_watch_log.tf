@@ -23,6 +23,16 @@ resource "aws_cloudwatch_log_stream" "ecs_web_server_firelens_firehose_s3" {
   log_group_name = aws_cloudwatch_log_group.firehose_errors.name
 }
 
+resource "aws_cloudwatch_log_stream" "ecs_batch_default_fluentd_firehose_s3" {
+  name           = "ecs-batch-default-fluentd-firehose-s3"
+  log_group_name = aws_cloudwatch_log_group.firehose_errors.name
+}
+
+resource "aws_cloudwatch_log_group" "ecs_container_logs" {
+  name              = "/ecs/container/logs"
+  retention_in_days = 14
+}
+
 resource "aws_cloudwatch_log_group" "rds" {
   name              = "/aws/rds/instance/${aws_db_instance.rds.identifier}/postgresql"
   retention_in_days = 30

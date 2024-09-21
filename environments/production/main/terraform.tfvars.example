@@ -5,7 +5,7 @@ app_repository         = "repo:example/sample_app:*"
 sns_subscription_email = "email@example.com"
 
 rds = {
-  engine_version        = "15.5"
+  engine_version        = "15.7"
   instance_class        = "db.t3.micro"
   storage_type          = "gp2"
   allocated_storage     = 20
@@ -32,6 +32,7 @@ ecs = {
     desired_count    = 1
   }
   task_definition = {
+    vcpu   = "0.25"
     cpu    = "256"
     memory = "512"
   }

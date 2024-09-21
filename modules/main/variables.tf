@@ -51,6 +51,7 @@ variable "ecs" {
       desired_count    = number
     })
     task_definition = object({
+      vcpu   = string
       cpu    = string
       memory = string
     })
