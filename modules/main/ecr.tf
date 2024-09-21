@@ -22,8 +22,8 @@ resource "aws_ecr_repository" "web_server" {
   }
 }
 
-resource "aws_ecr_repository" "batch" {
-  name                 = "${var.app_name}/batch"
+resource "aws_ecr_repository" "batch_default" {
+  name                 = "${var.app_name}/batch_default"
   image_tag_mutability = "IMMUTABLE"
 
   encryption_configuration {
