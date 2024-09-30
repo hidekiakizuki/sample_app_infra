@@ -301,6 +301,16 @@ data "aws_iam_policy_document" "git_hub_actions_deploy" {
     resources = ["*"]
   }
 
+  statement {
+    effect = "Allow"
+    actions = [
+      "batch:DescribeJobDefinitions",
+      "batch:RegisterJobDefinition",
+      "batch:TagResource"
+    ]
+    resources = ["*"]
+  }
+
   version = "2012-10-17"
 }
 

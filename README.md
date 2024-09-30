@@ -196,9 +196,7 @@ aws ecs execute-command --region {region} \
     --command "/bin/sh"
 ```
 
-# TODO
-modules/main/files/json/job_definitions/batch_default.json.tpl
-- assignPublicIpをenabledにする必要あるかも
-    networkConfiguration = {
-      assignPublicIp = "ENABLED"
-    }
+- バッチ実行コマンド
+```
+aws batch submit-job --job-name test --job-definition batch-default --job-queue batch-default
+```

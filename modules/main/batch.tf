@@ -28,7 +28,7 @@ resource "aws_batch_compute_environment" "batch_default" {
   compute_resources {
     type      = "FARGATE"
     max_vcpus = 16
-    subnets = tolist(aws_subnet.publics[*].id)
+    subnets = tolist(aws_subnet.privates[*].id)
     security_group_ids = [
       aws_security_group.batch.id
     ]
