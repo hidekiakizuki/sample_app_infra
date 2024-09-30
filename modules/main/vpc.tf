@@ -54,15 +54,8 @@ resource "aws_egress_only_internet_gateway" "default" {
   vpc_id = aws_vpc.default.id
 }
 
-/*
-コスト削減のため一旦コメントアウトします。
-利用ケースとしては以下の通り
-- PublicアドレスとしてIPv6しか持たないリソースから外部のIPv4対応のみの宛先に接続するケース
-- Private Subnet からIPv4で外部へ出るケース
-ただ、現状はPrivate SubnetからIPv4で外に出るケースはありません。
-
 resource "aws_nat_gateway" "defaults" {
-  count = length(var.zone_names)
+  count = var.service_suspend_mode ? 0 : length(var.zone_names)
 
   allocation_id = aws_eip.nats[count.index].id
   subnet_id     = aws_subnet.publics[count.index].id
@@ -73,7 +66,7 @@ resource "aws_nat_gateway" "defaults" {
 }
 
 resource "aws_eip" "nats" {
-  count = length(var.zone_names)
+  count = var.service_suspend_mode ? 0 : length(var.zone_names)
 
   domain = "vpc"
 
@@ -81,7 +74,6 @@ resource "aws_eip" "nats" {
     Name = "nat-${var.zone_names[count.index]}"
   }
 }
-*/
 
 resource "aws_route_table" "publics" {
   count = length(var.zone_names)
