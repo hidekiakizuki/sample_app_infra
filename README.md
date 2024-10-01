@@ -160,6 +160,8 @@ IAMにてIDプロバイダを追加します。
 
 # TODO
 - バッチ処理、非同期処理、外部公開API対応
+- /aws/batch/jobのログ出力不具合対応
+- on_demand_batchとscheduled_batchに分けてfargate_spot利用、優先順のデフォルト設定考慮
 
 # 備考
 - ECSからのログの流れ
