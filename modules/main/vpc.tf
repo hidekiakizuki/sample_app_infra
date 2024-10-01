@@ -115,21 +115,24 @@ resource "aws_route_table" "privates" {
   count = length(var.zone_names)
 
   vpc_id = aws_vpc.default.id
-  /*
-  route {
-    cidr_block     = local.open_access.ipv4.cidr_block
-    nat_gateway_id = aws_nat_gateway.defaults[count.index].id
+
+  dynamic "route" {
+    for_each = var.service_suspend_mode ? [] : [1]
+
+    content {
+      cidr_block     = local.open_access.ipv4.cidr_block
+      nat_gateway_id = aws_nat_gateway.defaults[count.index].id
+    }
   }
-*/
 
   route {
     ipv6_cidr_block        = local.open_access.ipv6.ipv6_cidr_block
     egress_only_gateway_id = aws_egress_only_internet_gateway.default.id
   }
 
-  /*
+/*
   route {
-    ipv6_cidr_block = "64:ff9b::/96"
+    ipv6_cidr_block = local.ipv6_translation_prefix
     gateway_id      = aws_nat_gateway.defaults[count.index].id
   }
 */
@@ -286,7 +289,7 @@ resource "aws_security_group" "rds" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "rds" {
+resource "aws_vpc_security_group_ingress_rule" "rds_ecs" {
   security_group_id = aws_security_group.rds.id
 
   referenced_security_group_id = aws_security_group.ecs.id
@@ -296,6 +299,19 @@ resource "aws_vpc_security_group_ingress_rule" "rds" {
 
   tags = {
     Name = "ecs-5432"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rds_batch" {
+  security_group_id = aws_security_group.rds.id
+
+  referenced_security_group_id = aws_security_group.batch.id
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+
+  tags = {
+    Name = "batch-5432"
   }
 }
 
