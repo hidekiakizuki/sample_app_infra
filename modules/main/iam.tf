@@ -1,8 +1,7 @@
-
 resource "aws_iam_role" "ecs_task" {
-  name                 = "ecs-task"
-  managed_policy_arns  = [aws_iam_policy.ecs_task.arn]
-  assume_role_policy   = data.aws_iam_policy_document.ecs_tasks_assume_role.json
+  name                = "ecs-task"
+  managed_policy_arns = [aws_iam_policy.ecs_task.arn]
+  assume_role_policy  = data.aws_iam_policy_document.ecs_tasks_assume_role.json
 }
 
 resource "aws_iam_policy" "ecs_task" {
@@ -41,8 +40,7 @@ data "aws_iam_policy_document" "ecs_task" {
     ]
     resources = [
       aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_app.arn,
-      aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.arn,
-      aws_kinesis_firehose_delivery_stream.ecs_container_logs_batch_default.arn
+      aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.arn
     ]
   }
 
@@ -55,8 +53,7 @@ data "aws_iam_policy_document" "ecs_task" {
     ]
     resources = [
       "${aws_cloudwatch_log_group.firelens.arn}:log-stream:*",
-      "${aws_cloudwatch_log_group.ecs_container_error_logs.arn}:log-stream:*",
-      "${aws_cloudwatch_log_group.ecs_container_logs.arn}:log-stream:*"
+      "${aws_cloudwatch_log_group.ecs_container_error_logs.arn}:log-stream:*"
     ]
   }
 
@@ -73,6 +70,40 @@ data "aws_iam_policy_document" "ecs_tasks_assume_role" {
     }
 
     actions = ["sts:AssumeRole"]
+  }
+
+  version = "2012-10-17"
+}
+
+resource "aws_iam_role" "batch_ecs_task" {
+  name                = "batch-ecs-task"
+  managed_policy_arns = [aws_iam_policy.ecs_task.arn, aws_iam_policy.batch_ecs_task.arn]
+  assume_role_policy  = data.aws_iam_policy_document.ecs_tasks_assume_role.json
+}
+resource "aws_iam_policy" "batch_ecs_task" {
+  name   = "batch-ecs-task"
+  policy = data.aws_iam_policy_document.batch_ecs_task.json
+}
+
+data "aws_iam_policy_document" "batch_ecs_task" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "firehose:PutRecordBatch"
+    ]
+    resources = [
+      aws_kinesis_firehose_delivery_stream.ecs_container_logs_batch_default.arn
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:DescribeLogStreams",
+      "logs:PutLogEvents"
+    ]
+    resources = ["${aws_cloudwatch_log_group.ecs_container_logs.arn}:log-stream:*"]
   }
 
   version = "2012-10-17"
@@ -154,7 +185,7 @@ data "aws_iam_policy_document" "firehose" {
 
 data "aws_iam_policy_document" "firehose_assume_role" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
 
     principals {
       type        = "Service"
@@ -168,9 +199,9 @@ data "aws_iam_policy_document" "firehose_assume_role" {
 }
 
 resource "aws_iam_role" "ecs_code_deploy" {
-  name                 = "ecs-code-deploy"
-  managed_policy_arns  = ["arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"]
-  assume_role_policy   = data.aws_iam_policy_document.ecs_code_deploy_assume_role.json
+  name                = "ecs-code-deploy"
+  managed_policy_arns = ["arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"]
+  assume_role_policy  = data.aws_iam_policy_document.ecs_code_deploy_assume_role.json
 }
 
 data "aws_iam_policy_document" "ecs_code_deploy_assume_role" {
@@ -188,8 +219,8 @@ data "aws_iam_policy_document" "ecs_code_deploy_assume_role" {
 }
 
 resource "aws_iam_role" "batch_service" {
-  name                 = "batch-service"
-  assume_role_policy   = data.aws_iam_policy_document.batch_service_assume_role.json
+  name               = "batch-service"
+  assume_role_policy = data.aws_iam_policy_document.batch_service_assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "batch_service" {
@@ -287,7 +318,8 @@ data "aws_iam_policy_document" "git_hub_actions_deploy" {
     ]
     resources = [
       aws_iam_role.ecs_task.arn,
-      aws_iam_role.ecs_task_execution.arn
+      aws_iam_role.ecs_task_execution.arn,
+      aws_iam_role.batch_ecs_task.arn
     ]
   }
 
