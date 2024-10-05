@@ -42,3 +42,8 @@ resource "aws_cloudwatch_log_group" "ecs_task_stopped" {
   name              = "/aws/events/ecs/task-stopped"
   retention_in_days = 14
 }
+
+resource "aws_cloudwatch_log_group" "batch_job_status_changed" {
+  name              = "/aws/events/batch/job-status-changed"
+  retention_in_days = 14
+}

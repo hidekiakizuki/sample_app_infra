@@ -145,7 +145,7 @@ aws sns confirm-subscription \
 もし誤ってメールの「Confirm subscription」をクリックしてしまったら、該当サブスクリプションを削除して作り直し、上記を実行してください。（一度メールからクリックするとやり直しはできません。）
 
 ### 20. Chatbot作成
-AWSマネジメントコンソールから手動でinfo, warn, errorを作成します。
+AWSマネジメントコンソールから手動でinfo, warn, error, batchを作成します。
 予めSlackで通知先チャンネルを作成しておき、SNS topicを設定してください。
 
 ### 21. EventBridge作成
