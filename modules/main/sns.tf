@@ -25,6 +25,15 @@ resource "aws_sns_topic_policy" "error" {
   policy = data.aws_iam_policy_document.sns_topic.json
 }
 
+resource "aws_sns_topic" "batch" {
+  name = "batch"
+}
+
+resource "aws_sns_topic_policy" "batch" {
+  arn    = aws_sns_topic.batch.arn
+  policy = data.aws_iam_policy_document.sns_topic.json
+}
+
 resource "aws_sns_topic_subscription" "chatbot_info" {
   topic_arn = aws_sns_topic.info.arn
   protocol  = "https"
@@ -43,6 +52,12 @@ resource "aws_sns_topic_subscription" "chatbot_error" {
   endpoint  = "https://global.sns-api.chatbot.amazonaws.com"
 }
 
+resource "aws_sns_topic_subscription" "chatbot_batch" {
+  topic_arn = aws_sns_topic.batch.arn
+  protocol  = "https"
+  endpoint  = "https://global.sns-api.chatbot.amazonaws.com"
+}
+
 resource "aws_sns_topic_subscription" "mail_info" {
   topic_arn = aws_sns_topic.info.arn
   protocol  = "email"
@@ -57,6 +72,12 @@ resource "aws_sns_topic_subscription" "mail_warn" {
 
 resource "aws_sns_topic_subscription" "mail_error" {
   topic_arn = aws_sns_topic.error.arn
+  protocol  = "email"
+  endpoint  = var.sns_subscription_email
+}
+
+resource "aws_sns_topic_subscription" "mail_batch" {
+  topic_arn = aws_sns_topic.batch.arn
   protocol  = "email"
   endpoint  = var.sns_subscription_email
 }
