@@ -131,7 +131,7 @@ resource "aws_s3_object" "web_extra" {
   key    = "web_extra.conf"
   source = "${path.module}/files/conf/fluent-bit/web_extra.conf"
 
-  etag   = filemd5("${path.module}/files/conf/fluent-bit/web_extra.conf")
+  etag = filemd5("${path.module}/files/conf/fluent-bit/web_extra.conf")
 }
 
 /*
@@ -150,7 +150,7 @@ resource "aws_s3_object" "web_app_log_parser" {
   key    = "web_app_log_parser.conf"
   source = "${path.module}/files/conf/fluent-bit/web_app_log_parser.conf"
 
-  etag   = filemd5("${path.module}/files/conf/fluent-bit/web_app_log_parser.conf")
+  etag = filemd5("${path.module}/files/conf/fluent-bit/web_app_log_parser.conf")
 }
 
 resource "aws_s3_object" "nginx_access_log_parser" {
@@ -158,7 +158,7 @@ resource "aws_s3_object" "nginx_access_log_parser" {
   key    = "nginx_access_log_parser.conf"
   source = "${path.module}/files/conf/fluent-bit/nginx_access_log_parser.conf"
 
-  etag   = filemd5("${path.module}/files/conf/fluent-bit/nginx_access_log_parser.conf")
+  etag = filemd5("${path.module}/files/conf/fluent-bit/nginx_access_log_parser.conf")
 }
 
 resource "aws_s3_object" "nginx_error_log_parser" {
@@ -166,7 +166,7 @@ resource "aws_s3_object" "nginx_error_log_parser" {
   key    = "nginx_error_log_parser.conf"
   source = "${path.module}/files/conf/fluent-bit/nginx_error_log_parser.conf"
 
-  etag   = filemd5("${path.module}/files/conf/fluent-bit/nginx_error_log_parser.conf")
+  etag = filemd5("${path.module}/files/conf/fluent-bit/nginx_error_log_parser.conf")
 }
 
 resource "aws_s3_bucket" "ecs_container_logs_web_app" {

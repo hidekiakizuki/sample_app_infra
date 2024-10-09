@@ -193,14 +193,42 @@ ECS - Batch
 - コンテナに入るコマンド
 ```
 aws ecs execute-command --region {region} \
-    --cluster {cluster name} \
-    --task {ecs task arn} \
-    --container {container name} \
-    --interactive \
-    --command "/bin/sh"
+  --cluster {cluster name} \
+  --task {ecs task arn} \
+  --container {container name} \
+  --interactive \
+  --command "/bin/sh"
 ```
 
-- バッチ実行コマンド
+- バッチ実行コマンドサンプル
 ```
-aws batch submit-job --job-name test --job-definition batch-default --job-queue batch-default
+aws batch submit-job \
+  --job-name example1 \
+  --job-definition batch-default \
+  --job-queue batch-default \
+  --ecs-properties-override '{
+    "taskProperties": [{
+      "containers": [{
+        "name": "batch-default",
+        "command": ["bundle", "exec", "rake", "test[hoge,fuga]"]
+      }]
+    }]
+  }'
+
+aws batch submit-job \
+  --job-name example2 \
+  --job-definition batch-default \
+  --job-queue batch-default \
+  --ecs-properties-override '{
+    "taskProperties": [{
+      "containers": [{
+        "name": "batch-default",
+        "command": ["bash", "-c", "${COMMAND}"],
+        "environment": [{
+          "name": "COMMAND",
+          "value": "bundle exec rake test[hoge,fuga]"
+        }]
+      }]
+    }]
+  }'
 ```

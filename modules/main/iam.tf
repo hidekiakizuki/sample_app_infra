@@ -110,12 +110,12 @@ data "aws_iam_policy_document" "batch_ecs_task" {
 }
 
 resource "aws_iam_role" "ecs_task_execution" {
-  name                = "ecs-task-execution"
+  name = "ecs-task-execution"
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
     aws_iam_policy.parameter_store_secrets_manager_read.arn
   ]
-  assume_role_policy  = data.aws_iam_policy_document.ecs_tasks_assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.ecs_tasks_assume_role.json
 }
 
 resource "aws_iam_policy" "parameter_store_secrets_manager_read" {
@@ -244,9 +244,9 @@ data "aws_iam_policy_document" "batch_service_assume_role" {
 }
 
 resource "aws_iam_role" "rds_monitoring" {
-  name                 = "rds-monitoring"
-  managed_policy_arns  = ["arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"]
-  assume_role_policy   = data.aws_iam_policy_document.monitoring_rds_assume_role.json
+  name                = "rds-monitoring"
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"]
+  assume_role_policy  = data.aws_iam_policy_document.monitoring_rds_assume_role.json
 }
 
 data "aws_iam_policy_document" "monitoring_rds_assume_role" {
@@ -264,9 +264,9 @@ data "aws_iam_policy_document" "monitoring_rds_assume_role" {
 }
 
 resource "aws_iam_role" "git_hub_actions_oidc" {
-  name                 = "git-hub-actions-oidc"
-  managed_policy_arns  = [aws_iam_policy.git_hub_actions_deploy.arn]
-  assume_role_policy   = data.aws_iam_policy_document.github_actions_oidc_assume_role.json
+  name                = "git-hub-actions-oidc"
+  managed_policy_arns = [aws_iam_policy.git_hub_actions_deploy.arn]
+  assume_role_policy  = data.aws_iam_policy_document.github_actions_oidc_assume_role.json
 }
 
 resource "aws_iam_policy" "git_hub_actions_deploy" {
@@ -421,9 +421,9 @@ data "aws_iam_policy_document" "sns_topic" {
 }
 
 resource "aws_iam_role" "cloud_watch_logs_export" {
-  name                 = "cloud-watch-logs-export"
-  managed_policy_arns  = [aws_iam_policy.cloud_watch_logs_export.arn, "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"]
-  assume_role_policy   = data.aws_iam_policy_document.scheduler_assume_role.json
+  name                = "cloud-watch-logs-export"
+  managed_policy_arns = [aws_iam_policy.cloud_watch_logs_export.arn, "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"]
+  assume_role_policy  = data.aws_iam_policy_document.scheduler_assume_role.json
 }
 
 resource "aws_iam_policy" "cloud_watch_logs_export" {
