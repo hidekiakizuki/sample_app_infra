@@ -148,7 +148,7 @@ aws sns confirm-subscription \
 AWSマネジメントコンソールから手動でinfo, warn, error, batchを作成します。
 予めSlackで通知先チャンネルを作成しておき、SNS topicを設定してください。
 
-### 21. EventBridge作成
+### 21. EventBridge、 EventBridge Scheduler作成
 
 ### 22. WAF作成
 
