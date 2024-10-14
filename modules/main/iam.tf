@@ -243,6 +243,61 @@ data "aws_iam_policy_document" "batch_service_assume_role" {
   version = "2012-10-17"
 }
 
+resource "aws_iam_role" "batch_schedule" {
+  name                = "batch-schedule"
+  managed_policy_arns = [aws_iam_policy.batch_schedule.arn]
+  assume_role_policy  = data.aws_iam_policy_document.batch_schedule_assume_role.json
+}
+
+resource "aws_iam_policy" "batch_schedule" {
+  name   = "batch-schedule"
+  policy = data.aws_iam_policy_document.batch_schedule.json
+}
+
+data "aws_iam_policy_document" "batch_schedule" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "batch:DescribeJobs",
+      "batch:SubmitJob",
+      "batch:TerminateJob"
+    ]
+    resources = [
+      "arn:aws:batch:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:job-definition/*",
+      "arn:aws:batch:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:job-queue/*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "events:DescribeRule",
+      "events:PutRule",
+      "events:PutTargets"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+
+  version = "2012-10-17"
+}
+
+data "aws_iam_policy_document" "batch_schedule_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+
+  version = "2012-10-17"
+}
+
 resource "aws_iam_role" "rds_monitoring" {
   name                = "rds-monitoring"
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"]

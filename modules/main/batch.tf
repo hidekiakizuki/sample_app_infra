@@ -23,6 +23,8 @@ resource "aws_batch_job_definition" "batch_default" {
       ecs_properties
     ]
   }
+
+  propagate_tags = true
 }
 
 resource "aws_batch_compute_environment" "batch_default" {
