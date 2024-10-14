@@ -107,7 +107,7 @@ resource "aws_scheduler_schedule" "batch_schedule" {
     mode = "OFF"
   }
 
-  schedule_expression          = "${each.value.cron}" # "cron(00 10 ? * 6 *)"
+  schedule_expression          = "${each.value.cron}"
   schedule_expression_timezone = "Asia/Tokyo"
 
   target {
