@@ -89,11 +89,13 @@ terraform import module.production.aws_dynamodb_table.terraform_state_lock terra
 
 ### 7. VPC作成
 
-### 8. IAM、Firehose、CloudWatch Logs作成
+### 8. SQS作成
 
-### 9. KMS作成
+### 9. IAM、Firehose、CloudWatch Logs作成
 
-### 10. SSMパラメータストアでパラメータ登録
+### 10. KMS作成
+
+### 11. SSMパラメータストアでパラメータ登録
 以下をAWSマネジメントコンソールから手動で登録します。
 - `/app/rails/secret_key_base`
 - `/rds/postgres/host`（※ 値はdummyで登録）
@@ -101,35 +103,35 @@ terraform import module.production.aws_dynamodb_table.terraform_state_lock terra
 - `/rds/postgres/password`
 - `/rds/postgres/database`
 
-### 11. ACMでSSL証明書を作成
+### 12. ACMでSSL証明書を作成
 AWSマネジメントコンソールから手動で作成します。  
 アプリケーションを配置するメインのregionとus-east-1リージョンでそれぞれ作成してください。  
 ALBとCloudFrontそれぞれで利用します。
 
 ドメインは別のAWSアカウントで管理する想定なので注意してください。
 
-### 12. RDS作成
+### 13. RDS作成
 インスタンス作成後、SSMパラメータストアの`/rds/postgres/host`に値をセットします。
 
-### 13. ECR作成
+### 14. ECR作成
 
-### 14. ALB作成
+### 15. ALB作成
 
-### 15. ECS作成
+### 16. ECS作成
 設定は正しいのに下記エラーが出る場合があります。
 > reading ECS Task Definition (web): ClientException: Unable to describe task definition.
 
 その場合は、一旦stateを削除すると問題が解説することがあります。
 > terraform state rm module.production.aws_ecs_task_definition.web
 
-### 16. Batch作成
+### 17. Batch作成
 リソース作成後、AWSマネジメントコンソールからアクセス許可設定のジョブログとContainer Insightsを有効化してください。
 
-### 17. CodeDeploy作成
+### 18. CodeDeploy作成
 
-### 18. CloudWatch Alarm作成
+### 19. CloudWatch Alarm作成
 
-### 19. SNS作成
+### 20. SNS作成
 メールが届いたら「Confirm subscription」のリンクをクリックせずに、そのリンク先のURLに含まれているTokenを抜き出し、
 AWS CLI経由で認証します。  
 これにより unsubscribe リンクを誤ってクリックしてしまうことを防止できます。
@@ -144,26 +146,25 @@ aws sns confirm-subscription \
 
 もし誤ってメールの「Confirm subscription」をクリックしてしまったら、該当サブスクリプションを削除して作り直し、上記を実行してください。（一度メールからクリックするとやり直しはできません。）
 
-### 20. Chatbot作成
+### 21. Chatbot作成
 AWSマネジメントコンソールから手動でinfo, warn, error, batchを作成します。
 予めSlackで通知先チャンネルを作成しておき、SNS topicを設定してください。
 
-### 21. EventBridge、 EventBridge Scheduler作成
+### 22. EventBridge、 EventBridge Scheduler作成
 
-### 22. WAF作成
+### 23. WAF作成
 
-### 23. CloudFront作成
+### 24. CloudFront作成
 ドメインを管理しているAWSアカウントのRoute53でAレコード作成し、エイリアスにこのディストリビューションを指定します。
 
-### 24. GitHubのIDプロバイダを追加
+### 25. GitHubのIDプロバイダを追加
 IAMにてIDプロバイダを追加します。
 - プロバイダのタイプ: `OpenID Connect`
 - プロバイダのURL: `https://token.actions.githubusercontent.com`
 - 対象者: `sts.amazonaws.com`
 
 # TODO
-- バッチ処理、非同期処理、外部公開API対応
-- on_demand_batchとscheduled_batchに分けてfargate_spot利用、優先順のデフォルト設定考慮
+- 外部公開API対応
 
 # 備考
 - ECSからのログの流れ

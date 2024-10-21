@@ -36,6 +36,21 @@ data "aws_iam_policy_document" "ecs_task" {
   statement {
     effect = "Allow"
     actions = [
+      "sqs:SendMessage",
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:DeleteMessageBatch",
+      "sqs:ChangeMessageVisibility"
+    ]
+    resources = [
+      aws_sqs_queue.queue_default.arn,
+      aws_sqs_queue.dlq_default.arn
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
       "firehose:PutRecordBatch"
     ]
     resources = [
