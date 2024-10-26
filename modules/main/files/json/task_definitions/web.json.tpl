@@ -3,6 +3,7 @@
     "name": "${container_name_web_app}",
     "image": "${web_app_image}",
     "essential": true,
+    "command": ["bundle", "exec", "puma", "-C", "config/puma.rb"],
     "dependsOn": [
       { "containerName": "${container_name_log_router}", "condition": "HEALTHY" }
     ],

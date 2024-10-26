@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "ecs_task" {
       "sqs:ChangeMessageVisibility"
     ]
     resources = [
-      aws_sqs_queue.queue_default.arn,
+      aws_sqs_queue.default.arn,
       aws_sqs_queue.dlq_default.arn
     ]
   }

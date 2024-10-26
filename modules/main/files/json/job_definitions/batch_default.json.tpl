@@ -8,7 +8,6 @@
           "name": "${container_name_batch}",
           "image": "${batch_image}",
           "essential": true,
-          "command": ["bash", "-c", "bundle exec rake test"],
           "resourceRequirements": [
             {
               "type": "VCPU",

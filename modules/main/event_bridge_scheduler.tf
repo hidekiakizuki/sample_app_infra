@@ -12,6 +12,7 @@ locals {
       destination_prefix = aws_cloudwatch_log_group.firehose_errors.name
     }
 
+    # AWS BatchのECSがFirelens対応されるまでの暫定設定
     ecs_container_logs = {
       schedule           = "rate(${aws_cloudwatch_log_group.ecs_container_logs.retention_in_days - 1} days)"
       log_group_name     = aws_cloudwatch_log_group.ecs_container_logs.name

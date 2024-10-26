@@ -179,6 +179,7 @@ resource "aws_s3_bucket" "ecs_container_logs_web_server" {
   force_destroy = false
 }
 
+# AWS BatchのECSがFirelens対応された場合の将来設定（現在は利用していません）
 resource "aws_s3_bucket" "ecs_container_logs_batch_default" {
   bucket        = "ecs-container-logs-batch-default-${data.aws_caller_identity.current.account_id}"
   force_destroy = false
