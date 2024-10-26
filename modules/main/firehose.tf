@@ -44,6 +44,7 @@ resource "aws_kinesis_firehose_delivery_stream" "ecs_container_logs_web_server" 
   }
 }
 
+# AWS BatchのECSがFirelens対応された場合の将来設定（現在は利用していません）
 resource "aws_kinesis_firehose_delivery_stream" "ecs_container_logs_batch_default" {
   name        = "ecs-container-logs-batch-default"
   destination = "extended_s3"

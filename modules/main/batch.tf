@@ -11,8 +11,8 @@ resource "aws_batch_job_definition" "batch_default" {
       task_role_arn                           = aws_iam_role.batch_ecs_task.arn
       region                                  = data.aws_region.current.name
       container_name_batch                    = local.container_names.batch_default
-      batch_image                             = "${aws_ecr_repository.batch_default.repository_url}:${local.latest_batch_default_tag}"
-      cloudwatch_log_group_ecs_container_logs = aws_cloudwatch_log_group.ecs_container_logs.name
+      batch_image                             = "${aws_ecr_repository.main.repository_url}:${local.ecr_main_latest_tag}"
+      cloudwatch_log_group_ecs_container_logs = aws_cloudwatch_log_group.ecs_container_logs.name # AWS BatchのECSがFirelens対応されるまでの暫定設定
       vcpu                                    = var.ecs.task_definition.vcpu
       memory                                  = var.ecs.task_definition.memory
     }
@@ -54,19 +54,4 @@ resource "aws_batch_job_queue" "batch_default" {
     order               = 1
     compute_environment = aws_batch_compute_environment.batch_default.arn
   }
-}
-
-data "external" "latest_batch_default_tag" {
-  program = [
-    "aws", "ecr", "describe-images",
-    "--repository-name", aws_ecr_repository.batch_default.name,
-    "--no-paginate",
-    "--query", "{\"tag\": to_string(sort_by(imageDetails[?imageTags != `null`], &imagePushedAt)[-1].imageTags[0])}"
-  ]
-
-  depends_on = [aws_ecr_repository.batch_default]
-}
-
-locals {
-  latest_batch_default_tag = data.external.latest_batch_default_tag.result.tag != "null" ? data.external.latest_batch_default_tag.result.tag : "dummy"
 }

@@ -124,8 +124,8 @@ resource "aws_ecs_task_definition" "web" {
       container_name_web_app                        = local.container_names.web_app
       container_name_web_server                     = local.container_names.web_server
       container_name_log_router                     = local.container_names.log_router
-      web_app_image                                 = "${aws_ecr_repository.web_app.repository_url}:${local.latest_web_app_tag}"
-      web_server_image                              = "${aws_ecr_repository.web_server.repository_url}:${local.latest_web_server_tag}"
+      web_app_image                                 = "${aws_ecr_repository.main.repository_url}:${local.ecr_main_latest_tag}"
+      web_server_image                              = "${aws_ecr_repository.web_server.repository_url}:${local.ecr_web_server_latest_tag}"
       # 特定のバージョンではSIGSEGVを受信しコンテナが落ちることがありました。将来的にイメージのバージョンアップで再びコンテナが落ちることもありえるためバージョンを固定します。
       log_router_image                              = "public.ecr.aws/aws-observability/aws-for-fluent-bit:init-amd64-2.32.2.20241003"
       cloudwatch_log_group_ecs_container_error_logs = aws_cloudwatch_log_group.ecs_container_error_logs.name
@@ -156,34 +156,4 @@ resource "aws_ecs_task_definition" "web" {
   lifecycle {
     ignore_changes = all
   }
-}
-
-data "external" "latest_web_app_tag" {
-  program = [
-    "aws", "ecr", "describe-images",
-    "--repository-name", aws_ecr_repository.web_app.name,
-    "--no-paginate",
-    "--query", "{\"tag\": to_string(sort_by(imageDetails[?imageTags != `null`], &imagePushedAt)[-1].imageTags[0])}"
-  ]
-
-  depends_on = [aws_ecr_repository.web_app]
-}
-
-data "external" "latest_web_server_tag" {
-  program = [
-    "aws", "ecr", "describe-images",
-    "--repository-name", aws_ecr_repository.web_server.name,
-    "--no-paginate",
-    "--query", "{\"tag\": to_string(sort_by(imageDetails[?imageTags != `null`], &imagePushedAt)[-1].imageTags[0])}"
-  ]
-
-  depends_on = [aws_ecr_repository.web_server]
-}
-
-locals {
-  latest_web_app_tag = data.external.latest_web_app_tag.result.tag != "null" ? data.external.latest_web_app_tag.result.tag : "dummy"
-}
-
-locals {
-  latest_web_server_tag = data.external.latest_web_server_tag.result.tag != "null" ? data.external.latest_web_server_tag.result.tag : "dummy"
 }

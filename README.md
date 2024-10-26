@@ -183,8 +183,12 @@ ECS - Web
 
 ```
 ECS - Batch
- ├─> CloudWatch Logs (/ecs/container/logs: batch-default) # batch-defaultコンテナのログを出力（AWS BatchのECSがfirelens対応されるまでこうする？）
- └─> fluentd（AWS BatchのECSがfirelens対応されるまで実装する？？）
+ * AWS BatchのECSがFirelens対応されるまでの暫定設定
+ └─> CloudWatch Logs (/ecs/container/logs: batch-default) # batch-defaultコンテナのログを出力（AWS BatchのECSがFirelens対応されるまではこちらを利用します。）
+
+ * AWS BatchのECSがFirelens対応された場合の将来設定
+ ├─> CloudWatch Logs (/ecs/container/firelens: batch-default) # Fluent Bitのログを出力
+ └─> FireLens (Fluent Bit)
       ├─> Firehose (ecs-container-logs-batch-default)
       │    ├─> S3 (ecs-container-logs-batch-default-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
       │    └─> CloudWatch Logs (/firehose/errors: ecs-batch-default-fluentd-firehose-s3) # Firehoseエラー
