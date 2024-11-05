@@ -1,50 +1,3 @@
-resource "aws_cloudwatch_metric_alarm" "web_alarm_high" {
-  count = var.delete_before_ecs_task_update ? 0 : 1
-
-  alarm_name          = "TargetTracking-service/${aws_ecs_cluster.web.name}/${aws_ecs_service.web[0].name}-AlarmHigh"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 3
-  metric_name         = "MemoryUtilization"
-  namespace           = "AWS/ECS"
-  period              = 60
-  statistic           = "Average"
-  threshold           = 70
-  unit                = "Percent"
-
-  dimensions = {
-    ClusterName = aws_ecs_cluster.web.name
-    ServiceName = aws_ecs_service.web[0].name
-  }
-
-  alarm_description = "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy ${aws_appautoscaling_policy.web[0].arn}."
-  actions_enabled   = true
-  alarm_actions     = [aws_appautoscaling_policy.web[0].arn, aws_sns_topic.warn.arn]
-  ok_actions        = [aws_sns_topic.warn.arn]
-}
-
-resource "aws_cloudwatch_metric_alarm" "web_alarm_low" {
-  count = var.delete_before_ecs_task_update ? 0 : 1
-
-  alarm_name          = "TargetTracking-service/${aws_ecs_cluster.web.name}/${aws_ecs_service.web[0].name}-AlarmLow"
-  comparison_operator = "LessThanThreshold"
-  evaluation_periods  = 15
-  metric_name         = "MemoryUtilization"
-  namespace           = "AWS/ECS"
-  period              = 60
-  statistic           = "Average"
-  threshold           = 63
-  unit                = "Percent"
-
-  dimensions = {
-    ClusterName = aws_ecs_cluster.web.name
-    ServiceName = aws_ecs_service.web[0].name
-  }
-
-  alarm_description = "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy ${aws_appautoscaling_policy.web[0].arn}."
-  actions_enabled   = true
-  alarm_actions     = [aws_appautoscaling_policy.web[0].arn]
-}
-
 resource "aws_cloudwatch_metric_alarm" "ecs_web_task_count_zero" {
   count = var.delete_before_ecs_task_update ? 0 : 1
 
@@ -70,7 +23,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_web_task_count_zero" {
   ok_actions          = [aws_sns_topic.error.arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_web_cpu_util" {
+resource "aws_cloudwatch_metric_alarm" "ecs_web_cpu_high" {
   alarm_name          = "ECS CPUUtilized/web"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
@@ -122,7 +75,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_web_cpu_util" {
   ok_actions          = [aws_sns_topic.warn.arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_web_memory_util" {
+resource "aws_cloudwatch_metric_alarm" "ecs_web_memory_high" {
   alarm_name          = "ECS MemoryUtilized/web"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
@@ -174,7 +127,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_web_memory_util" {
   ok_actions          = [aws_sns_topic.warn.arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_web_storage_util" {
+resource "aws_cloudwatch_metric_alarm" "ecs_web_storage_high" {
   alarm_name          = "ECS Ephemeral Storage Utilized | web"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
@@ -225,6 +178,188 @@ resource "aws_cloudwatch_metric_alarm" "ecs_web_storage_util" {
   ok_actions          = [aws_sns_topic.warn.arn]
 }
 
+### Worker #########################################################################################################
+resource "aws_cloudwatch_metric_alarm" "ecs_worker_task_count_zero" {
+  count = var.delete_before_ecs_task_update ? 0 : 1
+
+  alarm_name          = "ECS/ContainerInsights RunningTaskCount ServiceName=${aws_ecs_service.worker[0].name} ClusterName=${aws_ecs_cluster.worker.name}"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 5
+  metric_name         = "RunningTaskCount"
+  namespace           = "ECS/ContainerInsights"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 0
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.worker.name
+    ServiceName = aws_ecs_service.worker[0].name
+  }
+
+  alarm_description   = "このアラームは、ECS サービスの実行タスク数が少なくなっていないかどうかを検出するのに役立ちます。実行中のタスク数が少なすぎる場合、アプリケーションがサービス負荷を処理できない可能性があり、パフォーマンスに関する問題が発生することがあります。実行中のタスクがない場合は、ECS サービスが利用できないか、またはデプロイに関する問題が発生している可能性があります。"
+  datapoints_to_alarm = 5
+  treat_missing_data  = "breaching"
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.error.arn]
+  ok_actions          = [aws_sns_topic.error.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_worker_cpu_high" {
+  alarm_name          = "ECS CPUUtilized/worker"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 5
+  threshold           = 80
+
+  metric_query {
+    id          = "e1"
+    label       = "worker-cpu-utilized"
+    expression  = "100*(m1/m2)"
+    return_data = true
+  }
+
+  metric_query {
+    id = "m1"
+
+    metric {
+      metric_name = "CpuUtilized"
+      namespace   = "ECS/ContainerInsights"
+      period      = 300
+      stat        = "Average"
+
+      dimensions = {
+        ClusterName          = aws_ecs_cluster.worker.name
+        TaskDefinitionFamily = aws_ecs_task_definition.worker.family
+      }
+    }
+  }
+
+  metric_query {
+    id = "m2"
+
+    metric {
+      metric_name = "CpuReserved"
+      namespace   = "ECS/ContainerInsights"
+      period      = 300
+      stat        = "Average"
+
+      dimensions = {
+        ClusterName          = aws_ecs_cluster.worker.name
+        TaskDefinitionFamily = aws_ecs_task_definition.worker.family
+      }
+    }
+  }
+
+  alarm_description   = "タスク定義 ${aws_ecs_task_definition.worker.family} のCPU使用率が高くなっています。"
+  datapoints_to_alarm = 1
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.warn.arn]
+  ok_actions          = [aws_sns_topic.warn.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_worker_memory_high" {
+  alarm_name          = "ECS MemoryUtilized/worker"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 5
+  threshold           = 80
+
+  metric_query {
+    id          = "e1"
+    label       = "worker-memory-utilized"
+    expression  = "100*(m1/m2)"
+    return_data = true
+  }
+
+  metric_query {
+    id = "m1"
+
+    metric {
+      metric_name = "MemoryUtilized"
+      namespace   = "ECS/ContainerInsights"
+      period      = 300
+      stat        = "Average"
+
+      dimensions = {
+        ClusterName          = aws_ecs_cluster.worker.name
+        TaskDefinitionFamily = aws_ecs_task_definition.worker.family
+      }
+    }
+  }
+
+  metric_query {
+    id = "m2"
+
+    metric {
+      metric_name = "MemoryReserved"
+      namespace   = "ECS/ContainerInsights"
+      period      = 300
+      stat        = "Average"
+
+      dimensions = {
+        ClusterName          = aws_ecs_cluster.worker.name
+        TaskDefinitionFamily = aws_ecs_task_definition.worker.family
+      }
+    }
+  }
+
+  alarm_description   = "タスク定義 ${aws_ecs_task_definition.worker.family} のメモリ使用率が高くなっています。"
+  datapoints_to_alarm = 1
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.warn.arn]
+  ok_actions          = [aws_sns_topic.warn.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_worker_storage_high" {
+  alarm_name          = "ECS Ephemeral Storage Utilized | worker"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  threshold           = 80
+
+  metric_query {
+    id          = "e1"
+    label       = "worker-ephemeral-storage-utilized"
+    expression  = "100*(m1/m2)"
+    return_data = true
+  }
+
+  metric_query {
+    id = "m1"
+
+    metric {
+      metric_name = "EphemeralStorageUtilized"
+      namespace   = "ECS/ContainerInsights"
+      period      = 300
+      stat        = "Average"
+
+      dimensions = {
+        ClusterName          = aws_ecs_cluster.worker.name
+        TaskDefinitionFamily = aws_ecs_task_definition.worker.family
+      }
+    }
+  }
+  metric_query {
+    id = "m2"
+
+    metric {
+      metric_name = "EphemeralStorageReserved"
+      namespace   = "ECS/ContainerInsights"
+      period      = 300
+      stat        = "Average"
+
+      dimensions = {
+        ClusterName          = aws_ecs_cluster.worker.name
+        TaskDefinitionFamily = aws_ecs_task_definition.worker.family
+      }
+    }
+  }
+
+  alarm_description   = "タスク定義 ${aws_ecs_task_definition.worker.family} のエフェメラルストレージ使用率が高くなっています。"
+  datapoints_to_alarm = 1
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.warn.arn]
+  ok_actions          = [aws_sns_topic.warn.arn]
+}
+
+### RDS ############################################################################################################
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_util" {
   alarm_name          = "AWS/RDS CPUUtilization DBInstanceIdentifier=${aws_db_instance.rds.identifier}"
   comparison_operator = "GreaterThanThreshold"

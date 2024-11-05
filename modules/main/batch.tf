@@ -13,8 +13,8 @@ resource "aws_batch_job_definition" "batch_default" {
       container_name_batch                    = local.container_names.batch_default
       batch_image                             = "${aws_ecr_repository.main.repository_url}:${local.ecr_main_latest_tag}"
       cloudwatch_log_group_ecs_container_logs = aws_cloudwatch_log_group.ecs_container_logs.name # AWS BatchのECSがFirelens対応されるまでの暫定設定
-      vcpu                                    = var.ecs.task_definition.vcpu
-      memory                                  = var.ecs.task_definition.memory
+      vcpu                                    = var.ecs["batch"].task_definition.vcpu
+      memory                                  = var.ecs["batch"].task_definition.memory
     }
   )
 

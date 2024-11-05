@@ -17,6 +17,7 @@ locals {
   container_names = {
     web_app       = "web-app"
     web_server    = "web-server"
+    worker        = "worker"
     log_router    = "log-router"
     batch_default = "batch-default"
   }

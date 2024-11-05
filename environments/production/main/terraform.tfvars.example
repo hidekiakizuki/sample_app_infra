@@ -27,20 +27,50 @@ rds = {
 }
 
 ecs = {
-  service = {
-    platform_version = "1.4.0"
-    desired_count    = 1
+  web = {
+    service = {
+      platform_version = "1.4.0"
+      desired_count    = 1
+    }
+    task_definition = {
+      vcpu   = "0.25"
+      cpu    = "256"
+      memory = "512"
+    }
   }
-  task_definition = {
-    vcpu   = "0.25"
-    cpu    = "256"
-    memory = "512"
+  worker = {
+    service = {
+      platform_version = "1.4.0"
+      desired_count    = 1
+    }
+    task_definition = {
+      vcpu   = "0.25"
+      cpu    = "256"
+      memory = "512"
+    }
+  }
+  batch = {
+    service = {
+      platform_version = "1.4.0"
+      desired_count    = 1
+    }
+    task_definition = {
+      vcpu   = "0.25"
+      cpu    = "256"
+      memory = "512"
+    }
   }
 }
 
 appautoscaling_target = {
-  min_capacity = 1
-  max_capacity = 1
+  web = {
+    min_capacity = 1
+    max_capacity = 1
+  }
+  worker = {
+    min_capacity = 1
+    max_capacity = 1
+  }
 }
 
 allowed_ips_in_maintenance = [

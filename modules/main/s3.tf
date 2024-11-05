@@ -134,6 +134,14 @@ resource "aws_s3_object" "web_extra" {
   etag = filemd5("${path.module}/files/conf/fluent-bit/web_extra.conf")
 }
 
+resource "aws_s3_object" "worker_extra" {
+  bucket = aws_s3_bucket.fluent_bit_config.bucket
+  key    = "worker_extra.conf"
+  source = "${path.module}/files/conf/fluent-bit/worker_extra.conf"
+
+  etag = filemd5("${path.module}/files/conf/fluent-bit/worker_extra.conf")
+}
+
 /*
 将来、AWS BatchがFireLensに対応したときのためにおいておきます。現在は使用できません。
 resource "aws_s3_object" "batch_extra" {
@@ -145,12 +153,12 @@ resource "aws_s3_object" "batch_extra" {
 }
 */
 
-resource "aws_s3_object" "web_app_log_parser" {
+resource "aws_s3_object" "rails_log_parser" {
   bucket = aws_s3_bucket.fluent_bit_config.bucket
-  key    = "web_app_log_parser.conf"
-  source = "${path.module}/files/conf/fluent-bit/web_app_log_parser.conf"
+  key    = "rails_log_parser.conf"
+  source = "${path.module}/files/conf/fluent-bit/rails_log_parser.conf"
 
-  etag = filemd5("${path.module}/files/conf/fluent-bit/web_app_log_parser.conf")
+  etag = filemd5("${path.module}/files/conf/fluent-bit/rails_log_parser.conf")
 }
 
 resource "aws_s3_object" "nginx_access_log_parser" {
@@ -176,6 +184,11 @@ resource "aws_s3_bucket" "ecs_container_logs_web_app" {
 
 resource "aws_s3_bucket" "ecs_container_logs_web_server" {
   bucket        = "ecs-container-logs-web-server-${data.aws_caller_identity.current.account_id}"
+  force_destroy = false
+}
+
+resource "aws_s3_bucket" "ecs_container_logs_worker" {
+  bucket        = "ecs-container-logs-worker-${data.aws_caller_identity.current.account_id}"
   force_destroy = false
 }
 
