@@ -45,7 +45,7 @@ variable "rds" {
 }
 
 variable "ecs" {
-  type = object({
+  type = map(object({
     service = object({
       platform_version = string
       desired_count    = number
@@ -55,14 +55,14 @@ variable "ecs" {
       cpu    = string
       memory = string
     })
-  })
+  }))
 }
 
 variable "appautoscaling_target" {
-  type = object({
+  type = map(object({
     min_capacity = number
     max_capacity = number
-  })
+  }))
 }
 
 variable "allowed_ips_in_maintenance" {

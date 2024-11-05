@@ -44,8 +44,8 @@ locals {
       description = "This is example1"
       cron        = "cron(0 3 ? * 7 *)" # 毎週日曜日の1時
       job_command = "bundle exec rake test[hoge,fuga]"
-      vcpu        = var.ecs.task_definition.vcpu
-      memory      = var.ecs.task_definition.memory
+      vcpu        = var.ecs["batch"].task_definition.vcpu
+      memory      = var.ecs["batch"].task_definition.memory
     }
 
     example2 = {
@@ -53,8 +53,8 @@ locals {
       description = "This is example2"
       cron        = "cron(0 1 1 * ? *)" # 毎月1日の1時
       job_command = "bundle exec rake test[hoge,fuga,piyo]"
-      vcpu        = var.ecs.task_definition.vcpu
-      memory      = var.ecs.task_definition.memory
+      vcpu        = var.ecs["batch"].task_definition.vcpu
+      memory      = var.ecs["batch"].task_definition.memory
     }
   }
 }
@@ -124,8 +124,8 @@ resource "aws_scheduler_schedule" "batch_schedule" {
         job_queue      = aws_batch_job_queue.batch_default.name
         container_name = local.container_names.batch_default
         job_command    = "${each.value.job_command}" # "bundle exec rake test[hoge,fuga]"
-        vcpu           = "${each.value.vcpu}" # var.ecs.task_definition.vcpu
-        memory         = "${each.value.memory}" # var.ecs.task_definition.memory
+        vcpu           = "${each.value.vcpu}"        # var.ecs["batch"].task_definition.vcpu
+        memory         = "${each.value.memory}"      # var.ecs["batch"].task_definition.memory
       }
     )
   }

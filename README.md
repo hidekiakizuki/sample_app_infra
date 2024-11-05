@@ -180,6 +180,15 @@ ECS - Web
       │    └─> CloudWatch Logs (/firehose/errors: ecs-web-app-firelens-firehose-s3) # Firehoseエラー
       └─> CloudWatch Logs (/ecs/container/error-logs: web) # webコンテナのエラーログのみを出力
 ```
+```
+ECS - Worker
+ ├─> CloudWatch Logs (/ecs/container/firelens: worker) # Fluent Bitのログを出力
+ └─> FireLens (Fluent Bit)
+      ├─> Firehose (ecs-container-logs-worker)
+      │    ├─> S3 (ecs-container-logs-worker-#{accountid}: logs/year=yyyy/... | errors/year=yyyy...) # コンテナのすべてのログを出力
+      │    └─> CloudWatch Logs (/firehose/errors: ecs-worker-firelens-firehose-s3) # Firehoseエラー
+      └─> CloudWatch Logs (/ecs/container/error-logs: worker) # workerコンテナのエラーログのみを出力
+```
 
 ```
 ECS - Batch

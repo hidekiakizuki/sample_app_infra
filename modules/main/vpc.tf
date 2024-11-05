@@ -221,17 +221,17 @@ resource "aws_vpc_security_group_egress_rule" "alb" {
   }
 }
 
-resource "aws_security_group" "ecs" {
-  name   = "ecs"
+resource "aws_security_group" "web" {
+  name   = "web"
   vpc_id = aws_vpc.default.id
 
   tags = {
-    Name = "ecs"
+    Name = "web"
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "ecs" {
-  security_group_id = aws_security_group.ecs.id
+resource "aws_vpc_security_group_ingress_rule" "web" {
+  security_group_id = aws_security_group.web.id
 
   referenced_security_group_id = aws_security_group.alb.id
   ip_protocol                  = "tcp"
@@ -243,10 +243,33 @@ resource "aws_vpc_security_group_ingress_rule" "ecs" {
   }
 }
 
-resource "aws_vpc_security_group_egress_rule" "ecs" {
+resource "aws_vpc_security_group_egress_rule" "web" {
   for_each = local.open_access
 
-  security_group_id = aws_security_group.ecs.id
+  security_group_id = aws_security_group.web.id
+
+  cidr_ipv4   = each.value.cidr_block
+  cidr_ipv6   = each.value.ipv6_cidr_block
+  ip_protocol = "-1"
+
+  tags = {
+    Name = "open-access-${each.key}"
+  }
+}
+
+resource "aws_security_group" "worker" {
+  name   = "worker"
+  vpc_id = aws_vpc.default.id
+
+  tags = {
+    Name = "worker"
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "worker" {
+  for_each = local.open_access
+
+  security_group_id = aws_security_group.worker.id
 
   cidr_ipv4   = each.value.cidr_block
   cidr_ipv6   = each.value.ipv6_cidr_block
@@ -289,16 +312,29 @@ resource "aws_security_group" "rds" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "rds_ecs" {
+resource "aws_vpc_security_group_ingress_rule" "rds_web" {
   security_group_id = aws_security_group.rds.id
 
-  referenced_security_group_id = aws_security_group.ecs.id
+  referenced_security_group_id = aws_security_group.web.id
   ip_protocol                  = "tcp"
   from_port                    = 5432
   to_port                      = 5432
 
   tags = {
-    Name = "ecs-5432"
+    Name = "web-5432"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rds_worker" {
+  security_group_id = aws_security_group.rds.id
+
+  referenced_security_group_id = aws_security_group.worker.id
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+
+  tags = {
+    Name = "worker-5432"
   }
 }
 

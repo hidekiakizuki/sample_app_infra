@@ -147,7 +147,7 @@
         },
         {
           "name": "aws_fluent_bit_init_s3_2",
-          "value": "${web_app_log_parser_conf}"
+          "value": "${rails_log_parser_conf}"
         },
         {
           "name": "aws_fluent_bit_init_s3_3",

@@ -23,6 +23,11 @@ resource "aws_cloudwatch_log_stream" "ecs_web_server_firelens_firehose_s3" {
   log_group_name = aws_cloudwatch_log_group.firehose_errors.name
 }
 
+resource "aws_cloudwatch_log_stream" "ecs_worker_firelens_firehose_s3" {
+  name           = "ecs-worker-firelens-firehose-s3"
+  log_group_name = aws_cloudwatch_log_group.firehose_errors.name
+}
+
 # AWS BatchのECSがFirelens対応された場合の将来設定（現在は利用していません）
 resource "aws_cloudwatch_log_stream" "ecs_batch_default_fluentd_firehose_s3" {
   name           = "ecs-batch-default-fluentd-firehose-s3"
