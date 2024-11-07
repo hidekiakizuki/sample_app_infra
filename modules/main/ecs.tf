@@ -201,8 +201,8 @@ resource "aws_ecs_service" "worker" {
   platform_version    = var.ecs["worker"].service.platform_version
   scheduling_strategy = "REPLICA"
 
-  deployment_maximum_percent         = 100
-  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
   health_check_grace_period_seconds  = 300
 
   enable_execute_command = true
@@ -214,6 +214,11 @@ resource "aws_ecs_service" "worker" {
   network_configuration {
     subnets          = tolist(aws_subnet.privates[*].id)
     security_groups  = [aws_security_group.worker.id]
+  }
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
   }
 
   lifecycle {
