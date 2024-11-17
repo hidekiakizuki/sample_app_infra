@@ -38,6 +38,10 @@
             {
               "name": "SECRET_KEY_BASE",
               "valueFrom": "/app/rails/secret_key_base"
+            },
+            {
+              "name": "SQS_QUEUE_DEFAULT",
+              "valueFrom": "/sqs/queue/default"
             }
           ],
           "logConfiguration": {

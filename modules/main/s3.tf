@@ -197,3 +197,9 @@ resource "aws_s3_bucket" "ecs_container_logs_batch_default" {
   bucket        = "ecs-container-logs-batch-default-${data.aws_caller_identity.current.account_id}"
   force_destroy = false
 }
+
+# TODO: コメントアウトする
+resource "aws_s3_bucket" "flow_log_default" {
+  bucket = "vpc-flow-log-default"
+  force_destroy = false
+}
