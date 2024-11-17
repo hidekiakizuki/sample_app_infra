@@ -102,6 +102,7 @@ terraform import module.production.aws_dynamodb_table.terraform_state_lock terra
 - `/rds/postgres/user`
 - `/rds/postgres/password`
 - `/rds/postgres/database`
+- `/sqs/queue/default`
 
 ### 12. ACMでSSL証明書を作成
 AWSマネジメントコンソールから手動で作成します。  

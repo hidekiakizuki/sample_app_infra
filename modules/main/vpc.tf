@@ -130,12 +130,14 @@ resource "aws_route_table" "privates" {
     egress_only_gateway_id = aws_egress_only_internet_gateway.default.id
   }
 
-/*
-  route {
-    ipv6_cidr_block = local.ipv6_translation_prefix
-    gateway_id      = aws_nat_gateway.defaults[count.index].id
+  dynamic "route" {
+    for_each = var.service_suspend_mode ? [] : [1]
+
+    content {
+      ipv6_cidr_block = local.ipv6_translation_prefix
+      gateway_id      = aws_nat_gateway.defaults[count.index].id
+    }
   }
-*/
 
   route {
     cidr_block = aws_vpc.default.cidr_block
@@ -172,6 +174,71 @@ resource "aws_security_group" "alb" {
 
   tags = {
     Name = "alb"
+  }
+}
+
+# TODO: SQSへはIGW経由でアクセスするようにしたい
+resource "aws_vpc_endpoint" "sqs" {
+  count = var.service_suspend_mode ? 0 : 1
+
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.sqs"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.vpc_endpoint_sqs.id,
+  ]
+
+  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  private_dns_enabled = true
+}
+
+resource "aws_security_group" "vpc_endpoint_sqs" {
+  name   = "vpc-endpoint-sqs"
+  vpc_id = aws_vpc.default.id
+
+  tags = {
+    Name = "vpc-endpoint-sqs"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "vpc_endpoint_sqs_ipv4" {
+  security_group_id = aws_security_group.vpc_endpoint_sqs.id
+
+  cidr_ipv4   = aws_vpc.default.cidr_block
+  ip_protocol = "tcp"
+  from_port   = 443
+  to_port     = 443
+
+  tags = {
+    Name = "vpc-ipv4-https-access"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "vpc_endpoint_sqs_ipv6" {
+  security_group_id = aws_security_group.vpc_endpoint_sqs.id
+
+  cidr_ipv6   = aws_vpc.default.ipv6_cidr_block
+  ip_protocol = "tcp"
+  from_port   = 443
+  to_port     = 443
+
+  tags = {
+    Name = "vpc-ipv6-https-access"
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "vpc_endpoint_sqs" {
+  for_each = local.open_access
+
+  security_group_id = aws_security_group.vpc_endpoint_sqs.id
+
+  cidr_ipv4   = each.value.cidr_block
+  cidr_ipv6   = each.value.ipv6_cidr_block
+  ip_protocol = "-1"
+
+  tags = {
+    Name = "open-access-${each.key}"
   }
 }
 
@@ -364,3 +431,12 @@ resource "aws_vpc_security_group_egress_rule" "rds" {
     Name = "open-access-${each.key}"
   }
 }
+
+/*
+resource "aws_flow_log" "default" {
+  log_destination      = aws_s3_bucket.flow_log_default.arn
+  log_destination_type = "s3"
+  traffic_type         = "ALL"
+  vpc_id               = aws_vpc.default.id
+}
+*/

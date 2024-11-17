@@ -1,7 +1,11 @@
 resource "aws_iam_role" "ecs_task" {
-  name                = "ecs-task"
-  managed_policy_arns = [aws_iam_policy.ecs_task.arn]
-  assume_role_policy  = data.aws_iam_policy_document.ecs_tasks_assume_role.json
+  name               = "ecs-task"
+  assume_role_policy = data.aws_iam_policy_document.ecs_tasks_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task" {
+  role       = aws_iam_role.ecs_task.name
+  policy_arn = aws_iam_policy.ecs_task.arn
 }
 
 resource "aws_iam_policy" "ecs_task" {
@@ -36,6 +40,7 @@ data "aws_iam_policy_document" "ecs_task" {
   statement {
     effect = "Allow"
     actions = [
+      "sqs:GetQueueUrl",
       "sqs:SendMessage",
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage",
@@ -55,7 +60,8 @@ data "aws_iam_policy_document" "ecs_task" {
     ]
     resources = [
       aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_app.arn,
-      aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.arn
+      aws_kinesis_firehose_delivery_stream.ecs_container_logs_web_server.arn,
+      aws_kinesis_firehose_delivery_stream.ecs_container_logs_worker.arn
     ]
   }
 
@@ -91,10 +97,20 @@ data "aws_iam_policy_document" "ecs_tasks_assume_role" {
 }
 
 resource "aws_iam_role" "batch_ecs_task" {
-  name                = "batch-ecs-task"
-  managed_policy_arns = [aws_iam_policy.ecs_task.arn, aws_iam_policy.batch_ecs_task.arn]
-  assume_role_policy  = data.aws_iam_policy_document.ecs_tasks_assume_role.json
+  name               = "batch-ecs-task"
+  assume_role_policy = data.aws_iam_policy_document.ecs_tasks_assume_role.json
 }
+
+resource "aws_iam_role_policy_attachment" "batch_ecs_task1" {
+  role       = aws_iam_role.batch_ecs_task.name
+  policy_arn = aws_iam_policy.ecs_task.arn
+}
+
+resource "aws_iam_role_policy_attachment" "batch_ecs_task2" {
+  role       = aws_iam_role.batch_ecs_task.name
+  policy_arn = aws_iam_policy.batch_ecs_task.arn
+}
+
 resource "aws_iam_policy" "batch_ecs_task" {
   name   = "batch-ecs-task"
   policy = data.aws_iam_policy_document.batch_ecs_task.json
@@ -125,12 +141,18 @@ data "aws_iam_policy_document" "batch_ecs_task" {
 }
 
 resource "aws_iam_role" "ecs_task_execution" {
-  name = "ecs-task-execution"
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
-    aws_iam_policy.parameter_store_secrets_manager_read.arn
-  ]
+  name               = "ecs-task-execution"
   assume_role_policy = data.aws_iam_policy_document.ecs_tasks_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution1" {
+  role       = aws_iam_role.ecs_task_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution2" {
+  role       = aws_iam_role.ecs_task_execution.name
+  policy_arn = aws_iam_policy.parameter_store_secrets_manager_read.arn
 }
 
 resource "aws_iam_policy" "parameter_store_secrets_manager_read" {
@@ -147,6 +169,7 @@ data "aws_iam_policy_document" "parameter_store_secrets_manager_read" {
     resources = [
       "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/app/*",
       "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/rds/*",
+      "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/sqs/*"
     ]
   }
 
@@ -154,9 +177,13 @@ data "aws_iam_policy_document" "parameter_store_secrets_manager_read" {
 }
 
 resource "aws_iam_role" "firehose" {
-  name                = "firehose"
-  managed_policy_arns = [aws_iam_policy.firehose.arn]
-  assume_role_policy  = data.aws_iam_policy_document.firehose_assume_role.json
+  name               = "firehose"
+  assume_role_policy = data.aws_iam_policy_document.firehose_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "firehose" {
+  role       = aws_iam_role.firehose.name
+  policy_arn = aws_iam_policy.firehose.arn
 }
 
 resource "aws_iam_policy" "firehose" {
@@ -180,6 +207,8 @@ data "aws_iam_policy_document" "firehose" {
       "${aws_s3_bucket.ecs_container_logs_web_app.arn}/*",
       aws_s3_bucket.ecs_container_logs_web_server.arn,
       "${aws_s3_bucket.ecs_container_logs_web_server.arn}/*",
+      aws_s3_bucket.ecs_container_logs_worker.arn,
+      "${aws_s3_bucket.ecs_container_logs_worker.arn}/*",
       aws_s3_bucket.ecs_container_logs_batch_default.arn,
       "${aws_s3_bucket.ecs_container_logs_batch_default.arn}/*"
     ]
@@ -214,9 +243,13 @@ data "aws_iam_policy_document" "firehose_assume_role" {
 }
 
 resource "aws_iam_role" "ecs_code_deploy" {
-  name                = "ecs-code-deploy"
-  managed_policy_arns = ["arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"]
-  assume_role_policy  = data.aws_iam_policy_document.ecs_code_deploy_assume_role.json
+  name               = "ecs-code-deploy"
+  assume_role_policy = data.aws_iam_policy_document.ecs_code_deploy_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_code_deploy" {
+  role       = aws_iam_role.ecs_code_deploy.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
 }
 
 data "aws_iam_policy_document" "ecs_code_deploy_assume_role" {
@@ -259,9 +292,13 @@ data "aws_iam_policy_document" "batch_service_assume_role" {
 }
 
 resource "aws_iam_role" "batch_schedule" {
-  name                = "batch-schedule"
-  managed_policy_arns = [aws_iam_policy.batch_schedule.arn]
-  assume_role_policy  = data.aws_iam_policy_document.batch_schedule_assume_role.json
+  name               = "batch-schedule"
+  assume_role_policy = data.aws_iam_policy_document.batch_schedule_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "batch_schedule" {
+  role       = aws_iam_role.batch_schedule.name
+  policy_arn = aws_iam_policy.batch_schedule.arn
 }
 
 resource "aws_iam_policy" "batch_schedule" {
@@ -314,9 +351,13 @@ data "aws_iam_policy_document" "batch_schedule_assume_role" {
 }
 
 resource "aws_iam_role" "rds_monitoring" {
-  name                = "rds-monitoring"
-  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"]
-  assume_role_policy  = data.aws_iam_policy_document.monitoring_rds_assume_role.json
+  name               = "rds-monitoring"
+  assume_role_policy = data.aws_iam_policy_document.monitoring_rds_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "rds_monitoring" {
+  role       = aws_iam_role.rds_monitoring.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }
 
 data "aws_iam_policy_document" "monitoring_rds_assume_role" {
@@ -334,9 +375,13 @@ data "aws_iam_policy_document" "monitoring_rds_assume_role" {
 }
 
 resource "aws_iam_role" "git_hub_actions_oidc" {
-  name                = "git-hub-actions-oidc"
-  managed_policy_arns = [aws_iam_policy.git_hub_actions_deploy.arn]
-  assume_role_policy  = data.aws_iam_policy_document.github_actions_oidc_assume_role.json
+  name               = "git-hub-actions-oidc"
+  assume_role_policy = data.aws_iam_policy_document.github_actions_oidc_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "git_hub_actions_oidc" {
+  role       = aws_iam_role.git_hub_actions_oidc.name
+  policy_arn = aws_iam_policy.git_hub_actions_deploy.arn
 }
 
 resource "aws_iam_policy" "git_hub_actions_deploy" {
@@ -363,7 +408,8 @@ data "aws_iam_policy_document" "git_hub_actions_deploy" {
   statement {
     effect = "Allow"
     actions = [
-      "ecs:DescribeServices"
+      "ecs:DescribeServices",
+      "ecs:UpdateService"
     ]
     resources = ["arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/*"]
   }
@@ -491,9 +537,18 @@ data "aws_iam_policy_document" "sns_topic" {
 }
 
 resource "aws_iam_role" "cloud_watch_logs_export" {
-  name                = "cloud-watch-logs-export"
-  managed_policy_arns = [aws_iam_policy.cloud_watch_logs_export.arn, "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"]
-  assume_role_policy  = data.aws_iam_policy_document.scheduler_assume_role.json
+  name               = "cloud-watch-logs-export"
+  assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "cloud_watch_logs_export1" {
+  role       = aws_iam_role.cloud_watch_logs_export.name
+  policy_arn = aws_iam_policy.cloud_watch_logs_export.arn
+}
+
+resource "aws_iam_role_policy_attachment" "cloud_watch_logs_export2" {
+  role       = aws_iam_role.cloud_watch_logs_export.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
 }
 
 resource "aws_iam_policy" "cloud_watch_logs_export" {
