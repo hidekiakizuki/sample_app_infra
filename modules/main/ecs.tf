@@ -33,7 +33,7 @@ resource "aws_ecs_service" "web" {
 
   cluster         = aws_ecs_cluster.web.id
   task_definition = aws_ecs_task_definition.web.arn
-  desired_count   = var.service_suspend_mode ? 0 : var.ecs["web"].service.desired_count
+  desired_count   = 0 # TODO: var.service_suspend_mode ? 0 : var.ecs["web"].service.desired_count
 
   launch_type         = "FARGATE"
   platform_version    = var.ecs["web"].service.platform_version
@@ -221,11 +221,11 @@ resource "aws_ecs_service" "worker" {
     rollback = true
   }
 
-  lifecycle {
-    ignore_changes = [
-      task_definition
-    ]
-  }
+  #lifecycle {
+  #  ignore_changes = [
+  #    task_definition
+  #  ]
+  #}
 }
 
 resource "aws_appautoscaling_target" "worker" {
@@ -345,7 +345,7 @@ resource "aws_ecs_task_definition" "worker" {
     operating_system_family = "LINUX"
   }
 
-  lifecycle {
-    ignore_changes = all
-  }
+  #lifecycle {
+  #  ignore_changes = all
+  #}
 }

@@ -41,6 +41,12 @@
         "readOnly": false
       }
     ],
+    "environment": [
+      {
+        "name": "ENABLE_SYNC_STDOUT",
+        "value": "true"
+      }
+    ],
     "secrets": [
       {
         "name": "POSTGRES_DB",
