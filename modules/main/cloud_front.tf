@@ -11,7 +11,7 @@ resource "aws_cloudfront_distribution" "main" {
     }
   }
 
-  enabled          = false # TODO: var.service_suspend_mode ? false : true
+  enabled          = var.service_suspend_mode ? false : true
   is_ipv6_enabled  = true
   retain_on_delete = true
 
