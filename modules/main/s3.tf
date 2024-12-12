@@ -198,8 +198,9 @@ resource "aws_s3_bucket" "ecs_container_logs_batch_default" {
   force_destroy = false
 }
 
-# TODO: コメントアウトする
+/*
 resource "aws_s3_bucket" "flow_log_default" {
   bucket = "vpc-flow-log-default"
   force_destroy = false
 }
+*/
