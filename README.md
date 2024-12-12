@@ -87,7 +87,7 @@ terraform import module.production.aws_dynamodb_table.terraform_state_lock terra
 
 ### 6. DynamoDB作成
 
-### 7. VPC作成
+### 7. VPC、SecurityGroup、VPC Endpoint作成
 
 ### 8. SQS作成
 
@@ -165,6 +165,7 @@ IAMにてIDプロバイダを追加します。
 - 対象者: `sts.amazonaws.com`
 
 # TODO
+- セッションストアでredisを利用
 - 外部公開API対応
 
 # 備考
