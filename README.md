@@ -98,11 +98,17 @@ terraform import module.production.aws_dynamodb_table.terraform_state_lock terra
 ### 11. SSMパラメータストアでパラメータ登録
 以下をAWSマネジメントコンソールから手動で登録します。
 - `/app/rails/secret_key_base`
-- `/rds/postgres/host`（※ 値はdummyで登録）
+- `/rds/postgres/host` （※ 値はdummyで登録します。リソース作成後に正しいエンドポイントをセットします）
 - `/rds/postgres/user`
 - `/rds/postgres/password`
 - `/rds/postgres/database`
-- `/sqs/queue/default`
+- `/sqs/queue/default` （※ エンドポイントをセットします）
+- `/elasticache/default/host` （※ 値はdummyで登録します。リソース作成後に正しいエンドポイントをセットします）
+- `/elasticache/default-dummy/password`
+- `/elasticache/default-admin/user`
+- `/elasticache/default-admin/password`
+- `/elasticache/default-custom/user`
+- `/elasticache/default-custom/password`
 
 ### 12. ACMでSSL証明書を作成
 AWSマネジメントコンソールから手動で作成します。  
@@ -111,8 +117,8 @@ ALBとCloudFrontそれぞれで利用します。
 
 ドメインは別のAWSアカウントで管理する想定なので注意してください。
 
-### 13. RDS作成
-インスタンス作成後、SSMパラメータストアの`/rds/postgres/host`に値をセットします。
+### 13. RDS、 ElastiCache作成
+インスタンス作成後、SSMパラメータストアの `/rds/postgres/host` と `/elasticache/default/host` に値をセットします。
 
 ### 14. ECR作成
 
@@ -165,7 +171,6 @@ IAMにてIDプロバイダを追加します。
 - 対象者: `sts.amazonaws.com`
 
 # TODO
-- セッションストアでredisを利用
 - 外部公開API対応
 
 # 備考

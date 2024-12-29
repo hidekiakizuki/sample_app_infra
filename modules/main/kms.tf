@@ -1,18 +1,22 @@
 resource "aws_kms_key" "rds" {
   enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.kms_rds.json
+  policy              = data.aws_iam_policy_document.kms.json
 
   tags = {
     Name = "rds"
   }
 }
 
-resource "aws_kms_alias" "rds" {
-  name          = "alias/rds/postgres"
-  target_key_id = aws_kms_key.rds.key_id
+resource "aws_kms_key" "elasticache" {
+  enable_key_rotation = true
+  policy              = data.aws_iam_policy_document.kms.json
+
+  tags = {
+    Name = "elasticache"
+  }
 }
 
-data "aws_iam_policy_document" "kms_rds" {
+data "aws_iam_policy_document" "kms" {
   statement {
     effect    = "Allow"
     actions   = ["kms:*"]

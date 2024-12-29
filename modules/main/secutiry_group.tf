@@ -248,3 +248,57 @@ resource "aws_vpc_security_group_egress_rule" "vpc_endpoint_default" {
     Name = "vpc-endpoint-open-access-${each.key}"
   }
 }
+
+# --- ElastiCache -------------------------------------------------------------
+resource "aws_security_group" "elasticache_default" {
+  name        = "elasticache-default"
+  vpc_id      = aws_vpc.default.id
+
+  tags = {
+    Name = "elasticache"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "elasticache_default_ipv4" {
+  for_each = local.elacti_cache_ports
+
+  security_group_id = aws_security_group.elasticache_default.id
+
+  cidr_ipv4   = aws_vpc.default.cidr_block
+  ip_protocol = "tcp"
+  from_port   = each.value
+  to_port     = each.value
+
+  tags = {
+    Name = "elasticache-ipv4-${each.key}-access"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "elasticache_default_ipv6" {
+  for_each = local.elacti_cache_ports
+
+  security_group_id = aws_security_group.elasticache_default.id
+
+  cidr_ipv6   = aws_vpc.default.ipv6_cidr_block
+  ip_protocol = "tcp"
+  from_port   = each.value
+  to_port     = each.value
+
+  tags = {
+    Name = "elasticache-ipv6-${each.key}-access"
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "elasticache_default" {
+  for_each = local.open_access
+
+  security_group_id = aws_security_group.elasticache_default.id
+
+  cidr_ipv4   = each.value.cidr_block
+  cidr_ipv6   = each.value.ipv6_cidr_block
+  ip_protocol = "-1"
+
+  tags = {
+    Name = "elasticache-open-access-${each.key}"
+  }
+}
