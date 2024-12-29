@@ -76,6 +76,25 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   }
 }
 
+resource "aws_vpc_endpoint" "elasticache" {
+  count = var.service_suspend_mode ? 0 : 1
+
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.elasticache"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.vpc_endpoint_default.id
+  ]
+
+  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  private_dns_enabled = true
+
+  tags = {
+    Name = "elasticache"
+  }
+}
+
 resource "aws_vpc_endpoint" "secrets_manager" {
   count = var.service_suspend_mode ? 0 : 1
 
