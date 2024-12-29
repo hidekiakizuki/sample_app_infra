@@ -1,7 +1,7 @@
 resource "aws_elasticache_serverless_cache" "default" {
   count = var.service_suspend_mode ? 0 : 1
 
-  engine = "redis"
+  engine = "valkey"
   name   = "default"
 
   cache_usage_limits {
@@ -16,13 +16,16 @@ resource "aws_elasticache_serverless_cache" "default" {
 
   daily_snapshot_time      = "19:00" # JST 04:00
   kms_key_id               = aws_kms_key.elasticache.arn
-  major_engine_version     = "7"
+  major_engine_version     = "8"
   snapshot_retention_limit = 1
   security_group_ids       = [aws_security_group.elasticache_default.id]
   subnet_ids               = tolist(aws_subnet.privates[*].id)
   user_group_id            = aws_elasticache_user_group.default.id
 }
 
+# aws_elasticache_user_group、aws_elasticache_userは
+# Valkey8であってもengine = "REDIS"で動作する模様です。
+# https://github.com/hashicorp/terraform-provider-aws/issues/40286
 resource "aws_elasticache_user_group" "default" {
   engine        = "REDIS"
   user_group_id = "default"
