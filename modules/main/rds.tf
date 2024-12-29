@@ -35,7 +35,7 @@ resource "aws_db_instance" "rds" {
   delete_automated_backups = true
 
   maintenance_window         = "tue:18:00-tue:18:30" # 火曜 AM3:00 〜 3:30 JST
-  auto_minor_version_upgrade = true
+  auto_minor_version_upgrade = false
 
   monitoring_interval                   = 60
   monitoring_role_arn                   = aws_iam_role.rds_monitoring.arn

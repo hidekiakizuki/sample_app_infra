@@ -11,6 +11,11 @@ locals {
   }
 
   ipv6_translation_prefix = "64:ff9b::/96"
+
+  elacti_cache_ports = {
+    endpoint        = 6379
+    reader_endpoint = 6380
+  }
 }
 
 locals {
