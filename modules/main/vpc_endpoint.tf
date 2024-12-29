@@ -1,4 +1,5 @@
 # --- Gatewayタイプ ----------------------------------------------------------------
+/*
 resource "aws_vpc_endpoint" "s3" {
   count = var.service_suspend_mode ? 0 : 1
 
@@ -11,7 +12,14 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
-resource "aws_vpc_endpoint_route_table_association" "s3" {
+resource "aws_vpc_endpoint_route_table_association" "s3_publics" {
+  count = var.service_suspend_mode ? 0 : length(var.zone_names)
+
+  route_table_id  = aws_route_table.publics[count.index].id
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
+}
+
+resource "aws_vpc_endpoint_route_table_association" "s3_privates" {
   count = var.service_suspend_mode ? 0 : length(var.zone_names)
 
   route_table_id  = aws_route_table.privates[count.index].id
@@ -30,14 +38,23 @@ resource "aws_vpc_endpoint" "dynamodb" {
   }
 }
 
-resource "aws_vpc_endpoint_route_table_association" "dynamodb" {
+resource "aws_vpc_endpoint_route_table_association" "dynamodb_publics" {
+  count = var.service_suspend_mode ? 0 : length(var.zone_names)
+
+  route_table_id  = aws_route_table.publics[count.index].id
+  vpc_endpoint_id = aws_vpc_endpoint.dynamodb[0].id
+}
+
+resource "aws_vpc_endpoint_route_table_association" "dynamodb_privates" {
   count = var.service_suspend_mode ? 0 : length(var.zone_names)
 
   route_table_id  = aws_route_table.privates[count.index].id
   vpc_endpoint_id = aws_vpc_endpoint.dynamodb[0].id
 }
+*/
 
 # --- Interfaceタイプ -------------------------------------------------------------
+/*
 resource "aws_vpc_endpoint" "ecr_api" {
   count = var.service_suspend_mode ? 0 : 1
 
@@ -49,7 +66,7 @@ resource "aws_vpc_endpoint" "ecr_api" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
@@ -68,13 +85,14 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
     Name = "ecr-dkr"
   }
 }
+*/
 
 resource "aws_vpc_endpoint" "elasticache" {
   count = var.service_suspend_mode ? 0 : 1
@@ -87,7 +105,7 @@ resource "aws_vpc_endpoint" "elasticache" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
@@ -106,7 +124,7 @@ resource "aws_vpc_endpoint" "secrets_manager" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
@@ -125,7 +143,7 @@ resource "aws_vpc_endpoint" "ssm" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
@@ -144,7 +162,7 @@ resource "aws_vpc_endpoint" "ssm_messages" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
@@ -163,7 +181,7 @@ resource "aws_vpc_endpoint" "cloud_watch_logs" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
@@ -182,7 +200,7 @@ resource "aws_vpc_endpoint" "firehose" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
@@ -190,6 +208,7 @@ resource "aws_vpc_endpoint" "firehose" {
   }
 }
 
+/*
 resource "aws_vpc_endpoint" "sns" {
   count = var.service_suspend_mode ? 0 : 1
 
@@ -201,13 +220,14 @@ resource "aws_vpc_endpoint" "sns" {
     aws_security_group.vpc_endpoint_default.id
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
     Name = "sns"
   }
 }
+*/
 
 resource "aws_vpc_endpoint" "sqs" {
   count = var.service_suspend_mode ? 0 : 1
@@ -220,7 +240,7 @@ resource "aws_vpc_endpoint" "sqs" {
     aws_security_group.vpc_endpoint_default.id,
   ]
 
-  subnet_ids          = tolist(aws_subnet.privates[*].id)
+  subnet_ids          = concat(tolist(aws_subnet.publics[*].id), tolist(aws_subnet.privates[*].id))
   private_dns_enabled = true
 
   tags = {
