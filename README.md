@@ -98,12 +98,12 @@ terraform import module.production.aws_dynamodb_table.terraform_state_lock terra
 ### 11. SSMパラメータストアでパラメータ登録
 以下をAWSマネジメントコンソールから手動で登録します。
 - `/app/rails/secret_key_base`
-- `/rds/postgres/host` （※ 値はdummyで登録します。リソース作成後に正しいエンドポイントをセットします）
+- `/rds/postgres/host` （※ 値はdummyで登録します。リソース作成後に正しいホストをセットします）
 - `/rds/postgres/user`
 - `/rds/postgres/password`
 - `/rds/postgres/database`
 - `/sqs/queue/default` （※ エンドポイントをセットします）
-- `/elasticache/default/host` （※ 値はdummyで登録します。リソース作成後に正しいエンドポイントをセットします）
+- `/elasticache/default/host` （※ 値はdummyで登録します。リソース作成後に正しいホストをセットします）
 - `/elasticache/default-dummy/password`
 - `/elasticache/default-admin/user`
 - `/elasticache/default-admin/password`
@@ -213,7 +213,7 @@ ECS - Batch
 
 - コンテナに入るコマンド
 ```
-aws ecs execute-command --region {region} \
+aws ecs execute-command --region ap-northeast-1 \
   --cluster {cluster name} \
   --task {ecs task arn} \
   --container {container name} \

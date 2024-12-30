@@ -43,6 +43,18 @@
     ],
     "secrets": [
       {
+        "name": "ELASTICACHE_HOST",
+        "valueFrom": "/elasticache/default/host"
+      },
+      {
+        "name": "ELASTICACHE_USER",
+        "valueFrom": "/elasticache/default-custom/user"
+      },
+      {
+        "name": "ELASTICACHE_PASSWORD",
+        "valueFrom": "/elasticache/default-custom/password"
+      },
+      {
         "name": "POSTGRES_DB",
         "valueFrom": "/rds/postgres/database"
       },
